@@ -1,8 +1,10 @@
-require(data.table);  require(foreign); require(tidyverse)
+require(data.table);  require(foreign); require(tidyverse); require(this.path)
 
-early <- readRDS("Data/HFY48_93E.rds")    # Data set sent to B. Langseth by Paul Tao, which includes his effort to recover fisher names.
-late  <- readRDS("Data/HFY1994_2018.rds") # Data sent to M. Nadon on 5/13/2019 by Paul Tao
-last  <- readRDS("Data/HFY1994_2023.rds") # Data sent to M. Nadon on 3/19/2024 by Dios Gonzalez
+root_dir <- here(..=2)
+
+early <- readRDS(file.path(root_dir,"Data/HFY48_93E.rds"))    # Data set sent to B. Langseth by Paul Tao, which includes his effort to recover fisher names.
+late  <- readRDS(file.path(root_dir,"Data/HFY1994_2018.rds")) # Data sent to M. Nadon on 5/13/2019 by Paul Tao
+last  <- readRDS(file.path(root_dir,"Data/HFY1994_2023.rds")) # Data sent to M. Nadon on 3/19/2024 by Dios Gonzalez
 # Data originally sent as .dbf and csv, respectively. Converted to .rds to save space.
 
 # Load the new data for 2018-2023
@@ -198,7 +200,7 @@ C$GEAR_B   <- paste0("COM_",C$GEAR_B)
 C    <- dplyr::select(C,DATE,MONTH,FYEAR,LICENSE,AREA,AREA_A,AREA_B,AREA_C,AREA_D,GEAR,GEAR_A,GEAR_B,HOURS,NUM_GEAR,PORT_LAND,FISHER,SPECIES,NUM,LBS)
 C    <- C[order(DATE,LICENSE,AREA,GEAR,SPECIES,LBS)]
 
-saveRDS(C,"Outputs/CATCH_processed.rds")
+saveRDS(C,file.path(root_dir,"Outputs/CATCH_processed.rds"))
 
 
 

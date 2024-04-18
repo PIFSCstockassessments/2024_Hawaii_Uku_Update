@@ -1,7 +1,9 @@
 require(data.table);require(reshape2); require(openxlsx);require(plyr); require(boot); require(ggplot2); require(tidyverse); require(stringr);require(sf); require(rnaturalearth);
-library("png"); library("grid");library("gridExtra")
+library("png"); library("grid");library("gridExtra"); require(this.path)
 
-load("Data/ALL_REA_FISH_RAW.rdata")   
+root_dir <- here(..=2)
+
+load(file.path(root_dir,"Data/ALL_REA_FISH_RAW.rdata"))   
 UVS <- data.table(df)
 
 UVS[OBS_YEAR==2006]$OBS_YEAR <- 2005
@@ -40,7 +42,7 @@ aList[[i]] <- ggplot()+geom_sf(data=coast,lwd=1)+
 aGrid <- grid.arrange(aList[[1]],aList[[2]],aList[[3]],aList[[4]],aList[[5]],aList[[6]],aList[[7]],ncol=2)
 
 
-mypath <- paste("Outputs/Graphs/Spatial/01_SPAT_DIVESITES.png",sep="")
+mypath <- file.path(root_dir,paste("Outputs/Graphs/Spatial/01_SPAT_DIVESITES.png",sep=""))
 ggsave(mypath,plot=aGrid,units="cm",height=30,width=20, pointsize=1, dpi=300)
 
 #====================Inputs====================
@@ -146,6 +148,6 @@ Final$CV   <- Final$SD/Final$ABUNDANCE_CAL
 ggplot(data=Final,aes(x=YEAR,y=ABUNDANCE_CAL))+geom_errorbar(aes(ymin=ABUNDANCE_CAL-SD,ymax=ABUNDANCE_CAL+SD))+geom_line()+theme_bw()
 
 Final <- relocate(Final[YEAR<=2023],YEAR,MEAN=ABUNDANCE_CAL,CV)
-write.csv(Final,"Outputs/SS3 inputs/Final_DIVER.csv")
+write.csv(file.path(root_dir,Final,"Outputs/SS3 inputs/Final_DIVER.csv"))
 
 

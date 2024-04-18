@@ -1,4 +1,7 @@
 require(data.table); require(ggplot2); require(mgcv);  require(MASS); require(tidyverse); require(emmeans); require(lme4); require(boot); require(glmmTMB)
+require(this.path)
+
+root_dir <- here(..=2)
 
 RES_LIK            <- T
 
@@ -16,7 +19,7 @@ if(Gear.name=="DEEP_HANDLINE")    ShortName <- "DSH"
 if(Gear.name=="INSHORE_HANDLINE") ShortName <- "ISH"
 if(Gear.name=="TROLLING")         ShortName <- "TROL"
 
-C                <- readRDS(paste0("Outputs/CPUE_",Gear.name,"_StepC.rds"))
+C                <- readRDS(file.path(root_dir,paste0("Outputs/CPUE_",Gear.name,"_StepC.rds")))
 C$FYEAR          <- as.character(C$FYEAR)
 
 # Arrange datasets for CPUE standardization
@@ -220,13 +223,13 @@ if((CPUE.seperated==F&Only.recent==F)|Only.old==T) Results.Models <- rbind(Resul
 if(CPUE.seperated==T&Only.recent==F)               Results.Models <- rbind(Results.OldPos,Results.OldPres,Results.RecPos,Results.RecPres)
 if(CPUE.seperated==T&Only.recent==T)               Results.Models <- rbind(Results.RecPos,Results.RecPres)
 
-write.csv(Results.Models,paste0("Outputs/Graphs/CPUE/",Gear.name,"/Models_",ShortName,"_2Qs=",CPUE.seperated,"_RecEFF=",Effort.unit.recent,"_OldSTART=",year(Old.series.start),".csv"),row.names=F)
+write.csv(Results.Models,file.path(root_dir,paste0("Outputs/Graphs/CPUE/",Gear.name,"/Models_",ShortName,"_2Qs=",CPUE.seperated,"_RecEFF=",Effort.unit.recent,"_OldSTART=",year(Old.series.start),".csv")),row.names=F)
 
 # Save best models
 if((CPUE.seperated==F&Only.recent==F)|Only.old==T) M <- list(BestOldPos,BestOldPres)
 if(CPUE.seperated==T&Only.recent==F)               M <- list(BestOldPos,BestOldPres,BestRecPos,BestRecPres)
 if(CPUE.seperated==T&Only.recent==T)               M <- list(BestRecPos,BestRecPres)
 
-saveRDS(M,paste0("Outputs","/CPUE models/",ShortName,"_2Qs=",CPUE.seperated,"_RecEFF=",Effort.unit.recent,"_OldSTART=",year(Old.series.start),".rds"))
+saveRDS(M,file.path(root_dir,paste0("Outputs","/CPUE models/",ShortName,"_2Qs=",CPUE.seperated,"_RecEFF=",Effort.unit.recent,"_OldSTART=",year(Old.series.start),".rds")))
 
 

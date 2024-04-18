@@ -1,11 +1,13 @@
-require(data.table); require(MASS); require(tidyverse); require(ggplot2)
+require(data.table); require(MASS); require(tidyverse); require(ggplot2); require(this.path)
+
+root_dir <- here(..=2)
 
 # Select species by code (e.g. 20 == uku)
 
 Species.code <- 20
 
 #--- Create final catch table for a specific species, for use in assessment models-------------------------------
-C <- readRDS(file="Outputs/CATCH_processed.rds")
+C <- readRDS(file=file.path(root_dir,"Outputs/CATCH_processed.rds"))
 
 # Partition invalid areas to known mhi areas based on proportion of species/year in mhi area compared to nwhi area
 aggr          <- C[SPECIES==Species.code,list(LBS=sum(LBS)),by=list(FYEAR,AREA_D,GEAR_B)]
@@ -21,7 +23,7 @@ D         <- dcast(D, FYEAR~GEAR_B,value.var="LBS_COM",fill=0)%>% as.data.table(
 D$COM_TOT <- D$COM_DEEP_HANDLINE+D$COM_INSHORE_HANDLINE+D$COM_RARE+D$COM_TROLLING 
 
 # Add MRIP recreational catch data
-M          <- data.table( read.csv("Data\\mrip_GREEN_JOBFISH_catch_series.csv",skip=28, stringsAsFactors = F) )
+M          <- data.table( read.csv(file.path(root_dir,"Data\\mrip_GREEN_JOBFISH_catch_series.csv"),skip=28, stringsAsFactors = F) )
 M          <- dplyr::select(M,YEAR="Year",MODE="Fishing.Mode",NUM_MRIP=Total.Harvest..A.B1.)
 M          <- M[MODE!="PARTY/CHARTER BOAT"]
 M$NUM_MRIP <- as.numeric(M$NUM_MRIP)
@@ -36,7 +38,7 @@ M[YEAR==2017&MODE=="PRIVATE/RENTAL BOAT"]$NUM_MRIP <- M[YEAR==2017&MODE=="PRIVAT
 M$LBS_MRIP <- M$NUM_MRIP*(3.04*2.20462)    # Calculate catch in lbs by multiplying number caught by the mean kg weight of an uku from HMFRS 2003-2023 data (n=244). Remove two outliers (25lb and 18lb)
 M          <- data.table( dcast(M,YEAR~MODE,value.var="LBS_MRIP",fill=0) )
 
-S      <- data.table( read.csv("Data\\ProportionSampleSizeV2.csv",skip=1) ) # Proportion of MRIP catch sold by year for "boat" mode ("shore" mode list zero sold catch)
+S      <- data.table( read.csv(file.path(root_dir,"Data\\ProportionSampleSizeV2.csv"),skip=1) ) # Proportion of MRIP catch sold by year for "boat" mode ("shore" mode list zero sold catch)
 S      <- dplyr::select(S,YEAR=year,PROP_SOLD=Annual.proportion.of.sold.uku..by.numbers.)
 
 M         <- merge(M,S,by="YEAR")
@@ -62,7 +64,7 @@ lines(x,y)
 rec_catch <- ggplot(data=M,aes(x=YEAR,y=LBS_REC*0.453592/1000))+geom_point()+
   ylab("Recreational catch (metric tons)")+ggtitle("HMFRS recreational uku catch")+
   geom_smooth(method="lm")+theme_bw()
-ggsave(rec_catch,filename="Outputs/Graphs/Catch/FIG_REC.tiff",dpi=300,units="cm",width=13,height=6)
+ggsave(rec_catch,filename=file.path(root_dir,"Outputs/Graphs/Catch/FIG_REC.tiff"),dpi=300,units="cm",width=13,height=6)
 
 
 # Method 2: Calculate distribution of recreational catch between 2003-2017, removing small downward temporal trend
@@ -137,18 +139,18 @@ catch_plot <- ggplot(data=D,aes(x=FYEAR))+geom_line(aes(y=MTONS_ALL_M1))+geom_li
   geom_line(aes(y=MTONS_ALL_M3),col="blue")+
   ylab("Total catch (metric tons)")+ggtitle("Methods: Black=Ratios, Red=Human pop., Blue=Trend")+
   theme_bw()
-ggsave(catch_plot,filename="Outputs/Graphs/Catch/FIG10a.tiff",dpi=300,units="cm",width=13,height=6)
+ggsave(catch_plot,filename=file.path(root_dir,"Outputs/Graphs/Catch/FIG10a.tiff"),dpi=300,units="cm",width=13,height=6)
 
 catch_plot2 <- ggplot(data=D,aes(x=FYEAR))+geom_line(aes(y=MTONS_ALL_M3),size=1)+
   geom_line(aes(y=MTONS_ALL_M3+(MTONS_ALL_M3*MTONS_ALL_M3.LOGSD*1.96)),size=0.3)+
   geom_line(aes(y=MTONS_ALL_M3-(MTONS_ALL_M3*MTONS_ALL_M3.LOGSD*1.96)),size=0.3)+
   ylab("Total catch (metric tons)")+ggtitle("Catch using human pop. trend")+
   theme_bw()
-ggsave(catch_plot2,filename="Outputs/Graphs/Catch/FIG10b.tiff",dpi=300,units="cm",width=13,height=6)
+ggsave(catch_plot2,filename=file.path(root_dir,"Outputs/Graphs/Catch/FIG10b.tiff"),dpi=300,units="cm",width=13,height=6)
 
 #D <- dplyr::select(D,FYEAR,COM_DEEP_HANDLINE,COM_OTHER,MTONS_REC_M3,MTONS_REC_M3.LOGSD)
 D <- dplyr::select(D,FYEAR,COM_DEEP_HANDLINE,COM_INSHORE_HANDLINE,COM_TROLLING,COM_RARE,MTONS_REC_M3,MTONS_REC_M3.LOGSD)
 
 
 
-write.csv(D,"Outputs\\SS3 inputs\\Final_CATCH.csv",row.names=F)
+write.csv(D,file.path(root_dir,"Outputs\\SS3 inputs\\Final_CATCH.csv"),row.names=F)

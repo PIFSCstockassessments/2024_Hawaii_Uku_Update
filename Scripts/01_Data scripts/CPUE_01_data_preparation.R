@@ -19,9 +19,9 @@
 
 #Output: Best available dataset for CPUE time series for uku models.
 
-require(data.table); require(parallel); require(tidyverse); require(foreign); require(plyr)
+require(data.table); require(parallel); require(tidyverse); require(foreign); require(plyr); require(this.path)
 
-A <- readRDS("Outputs/CATCH_processed.rds")
+A <- readRDS(file.path(root_dir,"Outputs/CATCH_processed.rds"))
 
 # Select the gear to be used for CPUE analyses
 
@@ -100,7 +100,7 @@ FISHER_KEEP <- FISHER_INFO[PROP_FLD<0.95&!is.na(UKU_LBS)]$FISHER
 A           <- A[FISHER%in%FISHER_KEEP|DATE>="2003-01-01"]  # Filter those fishers out (while making sure to keep the newer segment of the data)
 
 # Remove fishing independent survey trips 
-FI        <- read.csv("Data\\FI to HDAR grid_priortoFY16.csv",header=T)
+FI        <- read.csv(file.path(root_dir,"Data\\FI to HDAR grid_priortoFY16.csv",header=T))
 FI$DATE   <- as.Date(FI$Date,format="%m/%d/%Y")
 FI$FISHER <- tolower(paste(FI$first,FI$last,sep="."))
 FI$ID     <- paste(FI$DATE,FI$HDAR.Grid,FI$FISHER)
@@ -111,7 +111,7 @@ A <- A[!paste(DATE,AREA,FISHER)%in%FI$ID] # Removed 98 records
 #=====STEP 2: Fix effort information (Days before Sept. 2002, Hours afterwards)==========
 
 #Read in distance values - These are files provide by Jerry Ault and Steve Smith from U of Miami 
-DIST  <- data.table(  read.csv("Data\\comport_area_distance_table.csv",header=T,col.names=c("COM_PORT","AREA","SUBAREA","DISTANCE")) )# Distance between common ports and various areas
+DIST  <- data.table(  read.csv(file.path(root_dir,"Data\\comport_area_distance_table.csv"),header=T,col.names=c("COM_PORT","AREA","SUBAREA","DISTANCE")) )# Distance between common ports and various areas
 DIST$AREA  <- as.character(DIST$AREA)
 DIST[SUBAREA!="Z"]$AREA  <- paste0(DIST[SUBAREA!="Z"]$AREA,DIST[SUBAREA!="Z"]$SUBAREA)
 DIST       <- dplyr::select(DIST,AREA,COM_PORT,DISTANCE)
@@ -177,7 +177,7 @@ EXP$CUM_EXP <- ave(EXP$TRIP, EXP$FISHER, FUN = seq_along)
 A           <- merge(A,EXP,by=c("FISHER","DATE","TRIP"))
 
 #Read in locations of management grids
-AREA_LOC     <- data.table( read.dbf("Data\\Fishchart2007110807_gridpts.dbf",as.is=T) )
+AREA_LOC     <- data.table( read.dbf(file.path(root_dir,"Data\\Fishchart2007110807_gridpts.dbf"),as.is=T) )
 AREA_VALID   <- unique(A$AREA)
 AREA_LOC     <- AREA_LOC[AREA_ID%in%AREA_VALID]     # Valid areas only
 AREA_LOC     <- AREA_LOC[AREA_A=="C"|is.na(AREA_A)] # Only keep subarea "C" for the 16123 grid to avoid duplicates
@@ -187,7 +187,7 @@ AREA_LOC     <- AREA_LOC[Shape_Le_1>0.05]           # Remove some duplicated loc
 if(add.wind==T){
 
 
-source("Data\\wind\\getWind.R")
+source(file.path(root_dir,"Data\\wind\\getWind.R"))
 TEMP     <- A[DATE>="2003-01-01"] # Can only use wind for the 2nd CPUE time series that start in Oct. 2002
 U_TRIPS  <- unique(TEMP$TRIP)
 
@@ -211,7 +211,7 @@ test <- WIND_INPUT[1:500] # Small subset of the data to estimate how long parall
 cl <- makeCluster(detectCores()-1)  
 clusterEvalQ(cl,require(chron))
 clusterEvalQ(cl,require(RNetCDF))
-clusterEvalQ(cl,source("Data/wind/getWind.R"))
+clusterEvalQ(cl,source(file.path(root_dir,"Data/wind/getWind.R")))
 clusterExport(cl=cl, varlist=c("AREA_LOC"))
 
 # Test run to estimate how long this step will take
@@ -257,12 +257,12 @@ if(add.wind==F){
 
 A <- A[order(DATE,FISHER,SPECIES,LBS)]
 
-saveRDS(A,paste0("Outputs/CPUE_",Gear.name,"_StepA.rds")) # OUTPUT: Save a first step of the CPUE dataset
+saveRDS(A,file.path(root_dir,paste0("Outputs/CPUE_",Gear.name,"_StepA.rds"))) # OUTPUT: Save a first step of the CPUE dataset
 
 #========Step 5: Final processing of the data====================
 require(data.table); require (dplyr); require(parallel); require(foreign)
 
-B <- readRDS(paste0("Outputs/CPUE_",Gear.name,"_StepA.rds"))
+B <- readRDS(file.path(root_dir,paste0("Outputs/CPUE_",Gear.name,"_StepA.rds")))
 # Collapse records reporting species-specific catch multiple time within the same trip
 if(add.wind==T) B <- B[,list(LBS=sum(LBS)),by=list(FYEAR,MONTH,DATE,TRIP,FISHER,CUM_EXP,LICENSE,LAT,LONG,AREA,AREA_A,AREA_B,AREA_C,GEAR,HOURS,DAYS,SPEED,XDIR,YDIR,SPECIES)]
 if(add.wind==F) B <- B[,list(LBS=sum(LBS)),by=list(FYEAR,MONTH,DATE,TRIP,FISHER,CUM_EXP,LICENSE,LAT,LONG,AREA,AREA_A,AREA_B,AREA_C,GEAR,HOURS,DAYS,SPECIES)]
@@ -327,11 +327,11 @@ B$CPUE                     <- numeric()
 B[DATE<"2003-01-01"]$CPUE  <- B[DATE<"2003-01-01"]$LBS/B[DATE<"2003-01-01"]$DAYS
 B[DATE>="2003-01-01"]$CPUE <- B[DATE>="2003-01-01"]$LBS/B[DATE>="2003-01-01"]$HOURS
 
-saveRDS(B,paste0("Outputs/CPUE_",Gear.name,"_StepB.rds"))
+saveRDS(B,file.path(root_dir,paste0("Outputs/CPUE_",Gear.name,"_StepB.rds")))
 
 #======= Calculate uku targeting principal component values (Winker et al. 2013)============
 require(data.table); require(dplyr); require(ggplot2); require(ggfortify)
-C <- readRDS(paste0("Outputs/CPUE_",Gear.name,"_StepB.rds"))
+C <- readRDS(file.path(root_dir,paste0("Outputs/CPUE_",Gear.name,"_StepB.rds")))
 C$SPECIES <- paste0("S",C$SPECIES)
 
 
@@ -405,4 +405,4 @@ if(add.wind==F) E <- dplyr::select(E,TRIP,FYEAR,MONTH,DATE,FISHER,CUM_EXP,LAT,LO
 
 E <- E[order(DATE,AREA_C,TRIP)]
 
-saveRDS(E,paste0("Outputs/CPUE_",Gear.name,"_StepC.rds"))
+saveRDS(E,file.path(root_dir,paste0("Outputs/CPUE_",Gear.name,"_StepC.rds")))

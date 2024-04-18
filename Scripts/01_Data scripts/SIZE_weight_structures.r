@@ -1,14 +1,17 @@
 # This script explores and processes length data.
-require(data.table); require(parallel); require(tidyverse); require(ggplot2); require(readxl);  require(plyr)
+require(data.table); require(parallel); require(tidyverse); require(ggplot2); require(readxl);  require(plyr); require(this.path)
+
+root_dir <- here(..=2)
+
 
 Gear.name <- c("DEEP_HANDLINE","INSHORE_HANDLINE","TROLLING")[1]
 
 # Read data in
-LH <- data.table( read_excel("Data/LifeHistory.xlsx") )
+LH <- data.table( read_excel(file.path(root_dir,"Data/LifeHistory.xlsx")) )
 LWA  <- LH[PAR=="LW_A"]$Value
 LWB  <- LH[PAR=="LW_B"]$Value
 MAXW <- LWA*(LH[PAR=="AbsMax"]$Value/10)^LWB*2.20462
-W  <- readRDS("Outputs/CATCH_processed.rds")
+W  <- readRDS(file.path(root_dir,"Outputs/CATCH_processed.rds"))
 W  <- W[SPECIES==20]
 W  <- W[GEAR_A==Gear.name]
 BIN_SIZE  <- 1 # in lbs
@@ -51,6 +54,6 @@ W <- dcast.data.table(W,FYEAR~WEIGHT_BIN_START_KG,value.var="NUM",fill=0)
 W <- merge(W,SAMPSIZE,by="FYEAR")
 W <- W %>% relocate(FYEAR,EFFN,2:ncol(W))
 
-write.csv(W,paste0("Outputs/SS3 inputs/Weight_structure_",Gear.name,"_year.csv"),row.names=F)
+write.csv(W,file.path(root_dir,paste0("Outputs/SS3 inputs/Weight_structure_",Gear.name,"_year.csv")),row.names=F)
 
       

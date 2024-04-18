@@ -1,5 +1,8 @@
 require(data.table); require(ggplot2); require(mgcv);  require(MASS); require(dplyr); require(emmeans); require(lme4); require(boot); require(stringr); 
-require(gridExtra); require(grid); require(statmod)
+require(gridExtra); require(grid); require(statmod); require(this.path)
+
+root_dir <- here(..=2)
+
 
 # CPUE time series options
 #==========================
@@ -15,8 +18,8 @@ if(Gear.name=="DEEP_HANDLINE")    ShortName <- "DSH"
 if(Gear.name=="INSHORE_HANDLINE") ShortName <- "ISH"
 if(Gear.name=="TROLLING")         ShortName <- "TROL"
 
-C         <- readRDS(paste0("Outputs/CPUE_",Gear.name,"_StepC.rds"))
-MODELS    <- readRDS(paste0("Outputs","/CPUE models/",ShortName,"_2Qs=",CPUE.seperated,"_RecEFF=",Effort.unit.recent,"_OldSTART=",year(Old.series.start),".rds"))
+C         <- readRDS(file.path(root_dir,paste0("Outputs/CPUE_",Gear.name,"_StepC.rds")))
+MODELS    <- readRDS(file.path(root_dir,paste0("Outputs","/CPUE models/",ShortName,"_2Qs=",CPUE.seperated,"_RecEFF=",Effort.unit.recent,"_OldSTART=",year(Old.series.start),".rds")))
 
 C$FYEAR           <- as.character(C$FYEAR)
 
@@ -181,7 +184,7 @@ for(i in 1:nrow(OI)){
 OA       <- OA[CPUE<Inf]
 
 OA <- dplyr::select(OA,FYEAR,CPUE,LOGCPUESD)
-write.csv(OA,paste0("Outputs/SS3 inputs/CPUE_",ShortName,"_2Qs=",CPUE.seperated,"_RecEFF=",Effort.unit.recent,"_OldSTART=",year(Old.series.start),"_old.csv"),row.names=F)
+write.csv(OA,file.path(root_dir,paste0("Outputs/SS3 inputs/CPUE_",ShortName,"_2Qs=",CPUE.seperated,"_RecEFF=",Effort.unit.recent,"_OldSTART=",year(Old.series.start),"_old.csv")),row.names=F)
 }
 #===========================================================================================================
 #===================== Calculate abundance index for Recent dataset=========================================
@@ -274,7 +277,7 @@ for(i in 1:nrow(RI)){
 RA       <- RA[CPUE<Inf]
 
 RA <- dplyr::select(RA,FYEAR,CPUE,LOGCPUESD)
-write.csv(RA,paste0("Outputs/SS3 inputs/CPUE_",ShortName,"_2Qs=",CPUE.seperated,"_RecEFF=",Effort.unit.recent,"_OldSTART=",year(Old.series.start),"_recent.csv"),row.names=F)
+write.csv(RA,file.path(root_dir,paste0("Outputs/SS3 inputs/CPUE_",ShortName,"_2Qs=",CPUE.seperated,"_RecEFF=",Effort.unit.recent,"_OldSTART=",year(Old.series.start),"_recent.csv")),row.names=F)
 
 } # End of recent period If loop.
 
@@ -326,9 +329,9 @@ CPUE_O3 <- ggplot(data=G,aes(x=FYEAR))+geom_line(aes(y=NOMI.PERC,group=1),color=
   ylab("Standardized total CPUE")+ggtitle(paste0("Nominal (blue) vs standard. (red): ",Old.start,"-",Old.end))+
   theme_bw()
 
-ggsave(CPUE_O1,filename=paste0("Outputs/Graphs/CPUE/",Gear.name,"/CPUEFIG1a_","2Qs=",CPUE.seperated,"_RecEFF=",Effort.unit.recent,"_OldSTART=",year(Old.series.start),".tiff"),unit="cm",width=12,height=8,dpi=300)
-ggsave(CPUE_O2,filename=paste0("Outputs/Graphs/CPUE/",Gear.name,"/CPUEFIG1b_","2Qs=",CPUE.seperated,"_RecEFF=",Effort.unit.recent,"_OldSTART=",year(Old.series.start),".tiff"),unit="cm",width=12,height=8,dpi=300)
-ggsave(CPUE_O3,filename=paste0("Outputs/Graphs/CPUE/",Gear.name,"/CPUEFIG1c_","2Qs=",CPUE.seperated,"_RecEFF=",Effort.unit.recent,"_OldSTART=",year(Old.series.start),".tiff"),unit="cm",width=12,height=8,dpi=300)
+ggsave(CPUE_O1,filename=file.path(root_dir,paste0("Outputs/Graphs/CPUE/",Gear.name,"/CPUEFIG1a_","2Qs=",CPUE.seperated,"_RecEFF=",Effort.unit.recent,"_OldSTART=",year(Old.series.start),".tiff")),unit="cm",width=12,height=8,dpi=300)
+ggsave(CPUE_O2,filename=file.path(root_dir,paste0("Outputs/Graphs/CPUE/",Gear.name,"/CPUEFIG1b_","2Qs=",CPUE.seperated,"_RecEFF=",Effort.unit.recent,"_OldSTART=",year(Old.series.start),".tiff")),unit="cm",width=12,height=8,dpi=300)
+ggsave(CPUE_O3,filename=file.path(root_dir,paste0("Outputs/Graphs/CPUE/",Gear.name,"/CPUEFIG1c_","2Qs=",CPUE.seperated,"_RecEFF=",Effort.unit.recent,"_OldSTART=",year(Old.series.start),".tiff")),unit="cm",width=12,height=8,dpi=300)
 } # End of Only.recent If statement.
 
 
@@ -376,9 +379,9 @@ CPUE_R3 <- ggplot(data=H,aes(x=FYEAR))+geom_line(aes(y=NOMI.PERC,group=1),color=
   ylab("Standardized total CPUE")+ggtitle(paste0("Nominal (blue) vs standard. (red): ",Old.start,"-",Old.end))+
   theme_bw()
 
-ggsave(CPUE_R1,filename=paste0("Outputs/Graphs/CPUE/",Gear.name,"/CPUEFIG1d_","2Qs=",CPUE.seperated,"_RecEFF=",Effort.unit.recent,"_OldSTART=",year(Old.series.start),".tiff"),unit="cm",width=12,height=8,dpi=300)
-ggsave(CPUE_R2,filename=paste0("Outputs/Graphs/CPUE/",Gear.name,"/CPUEFIG1e_","2Qs=",CPUE.seperated,"_RecEFF=",Effort.unit.recent,"_OldSTART=",year(Old.series.start),".tiff"),unit="cm",width=12,height=8,dpi=300)
-ggsave(CPUE_R3,filename=paste0("Outputs/Graphs/CPUE/",Gear.name,"/CPUEFIG1f_","2Qs=",CPUE.seperated,"_RecEFF=",Effort.unit.recent,"_OldSTART=",year(Old.series.start),".tiff"),unit="cm",width=12,height=8,dpi=300)
+ggsave(CPUE_R1,filename=file.path(root_dir,paste0("Outputs/Graphs/CPUE/",Gear.name,"/CPUEFIG1d_","2Qs=",CPUE.seperated,"_RecEFF=",Effort.unit.recent,"_OldSTART=",year(Old.series.start),".tiff")),unit="cm",width=12,height=8,dpi=300)
+ggsave(CPUE_R2,filename=file.path(root_dir,paste0("Outputs/Graphs/CPUE/",Gear.name,"/CPUEFIG1e_","2Qs=",CPUE.seperated,"_RecEFF=",Effort.unit.recent,"_OldSTART=",year(Old.series.start),".tiff")),unit="cm",width=12,height=8,dpi=300)
+ggsave(CPUE_R3,filename=file.path(root_dir,paste0("Outputs/Graphs/CPUE/",Gear.name,"/CPUEFIG1f_","2Qs=",CPUE.seperated,"_RecEFF=",Effort.unit.recent,"_OldSTART=",year(Old.series.start),".tiff")),unit="cm",width=12,height=8,dpi=300)
 } # End of Recent series If loop
 
 #======================Model diagnostics========================================
@@ -412,7 +415,7 @@ glist[[9]] <- ggplot(data=data,aes(x=sqPC1,y=Residuals))+geom_point(size=0.1)+th
 if(Gear.name=="DEEP_HANDLINE"){
 gPage <- arrangeGrob(ncol=3, glist[[1]],glist[[2]],glist[[3]],glist[[4]],glist[[5]],glist[[6]],glist[[7]],glist[[8]],glist[[9]])
 
-filename=paste0("Outputs/Graphs/CPUE/",Gear.name,"/CPUE_DIAG_OldPos.tiff")
+filename=file.path(root_dir,paste0("Outputs/Graphs/CPUE/",Gear.name,"/CPUE_DIAG_OldPos.tiff"))
 tiff(filename=filename, type="cairo", units="cm", compression = "lzw",
      width=17,
      height=14,
@@ -448,7 +451,7 @@ glist[[9]] <- ggplot(data=data,aes(x=sqPC2,y=Residuals))+geom_point(size=0.1)+th
 if(Gear.name=="DEEP_HANDLINE"){
 gPage <- arrangeGrob(ncol=3, glist[[1]],glist[[2]],glist[[3]],glist[[4]],glist[[5]],glist[[6]],glist[[7]],glist[[8]],glist[[9]])
 
-filename=paste0("Outputs/Graphs/CPUE/",Gear.name,"/CPUE_DIAG_OldPres.tiff")
+filename=file.path(root_dir,paste0("Outputs/Graphs/CPUE/",Gear.name,"/CPUE_DIAG_OldPres.tiff"))
 tiff(filename=filename, type="cairo", units="cm", compression = "lzw",
      width=17,
      height=14,
@@ -496,7 +499,7 @@ if(Gear.name=="DEEP_HANDLINE"){
 }
 
 
-filename=paste0("Outputs/Graphs/CPUE/",Gear.name,"/CPUE_DIAG_RecPos.tiff")
+filename=file.path(root_dir,paste0("Outputs/Graphs/CPUE/",Gear.name,"/CPUE_DIAG_RecPos.tiff"))
 tiff(filename=filename, type="cairo", units="cm", compression = "lzw",
      width=17,
      height=14,
@@ -543,7 +546,7 @@ if(Gear.name=="DEEP_HANDLINE"){
 
 
 
-filename=paste0("Outputs/Graphs/CPUE/",Gear.name,"/CPUE_DIAG_RecPres.tiff")
+filename=file.path(root_dir,paste0("Outputs/Graphs/CPUE/",Gear.name,"/CPUE_DIAG_RecPres.tiff"))
 tiff(filename=filename, type="cairo", units="cm", compression = "lzw",
      width=17,
      height=14,
