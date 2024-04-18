@@ -1,4 +1,4 @@
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum ac nibh gravida, fermentum urna eget, iaculis purus. In in commodo turpis. Duis ut arcu eget ante suscipit scelerisque quis ultrices nibh. In porttitor, nisi eget ullamcorper consectetur, erat lorem porttitor orci, at facilisis ex nunc. 
+This repo pertains to the 2024 stock assessment update for uku (Aprion virescens) in Hawaii. This is the script necessary to process the raw Catch, CPUE, and Size data and input these into Stock Synthesis models (and process their outputs). New data were added from 2019 to 2023, but the assessment framework remains the same as the 2020 one.
 
 ## Github Disclaimer
 
