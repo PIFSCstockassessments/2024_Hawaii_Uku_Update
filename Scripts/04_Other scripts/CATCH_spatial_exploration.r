@@ -1,7 +1,11 @@
 require(sf); require(rnaturalearth);  require(rnaturalearthdata); require(ggplot2); require(RColorBrewer); require(data.table); require(reshape2); require(dplyr)
+require(this.path)
+
+root_dir <- here(..=2)
+
 
 # Load processed catch data
-C1 <- readRDS("Outputs/CATCH_processed.rds")
+C1 <- readRDS(file.path(root_dir,"Outputs/CATCH_processed.rds"))
 
 # Obtain alternative spatial reclassification scheme
 #RC <- C1[!duplicated(C1[,2:4]),]
@@ -16,7 +20,7 @@ C1     <- merge(C1,SUBTOT,by=c("YEAR","AREA_A"))
 
 # Load shapefile
 coast         <- ne_coastline(scale="medium",returnclass="sf") 
-grids         <- st_read("DATA/Grids/DAR_Reporting_grids_all.shp")
+grids         <- st_read(file.path(root_dir,"DATA/Grids/DAR_Reporting_grids_all.shp"))
 grids$AREA_ID <- as.character(grids$AREA_ID)
 grids$AREA_A  <- NULL
 
@@ -62,7 +66,7 @@ for(i in 1:length(YearList)){
     scale_fill_gradientn(limits=c(0,40),colors=brewer.pal(11,"RdYlGn"))+ggtitle(YearList[i])+aTheme
     
   aList[[i]] <- aPlot
-  mypath <- paste("Outputs/Graphs/Spatial/Spatial", YearList[i], "_CATCH.tiff",sep="")
+  mypath <- file.path(root_dir,paste("Outputs/Graphs/Spatial/Spatial", YearList[i], "_CATCH.tiff",sep=""))
   ggsave(mypath,plot=aPlot,units="cm",height=5.5,width=8.5, pointsize=10, dpi=300, compression="lzw")
   
 }

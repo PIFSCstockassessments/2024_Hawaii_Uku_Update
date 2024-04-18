@@ -1,6 +1,10 @@
 require(data.table); require(ggplot2); require(mgcv): require(dplyr); require(RColorBrewer); require(emmeans); require(forcats); require(boot)
+require(this.path)
 
-C <- readRDS("Outputs/CPUE_DEEP_HANDLINE_StepC.rds")
+root_dir <- here(..=2)
+
+
+C <- readRDS(file.path(root_dir,"Outputs/CPUE_DEEP_HANDLINE_StepC.rds"))
 
 C$FYEAR <- as.character(C$FYEAR)
 C$PRES  <- 0

@@ -1,8 +1,11 @@
 require(data.table); require(MASS); require(dplyr); require(ggplot2)
+require(this.path)
+
+root_dir <- here(..=2)
 
 #Species.code <- 20
 
-D    <- readRDS(file="Outputs/CATCH_processed.rds")
+D    <- readRDS(file=file.path(root_dir,"Outputs/CATCH_processed.rds"))
 C    <- D
 C$ID <- paste0(C$DATE,"_",C$FISHER)
 C    <- C[GEAR_A=="DEEP_HANDLINE"]
@@ -21,7 +24,7 @@ NGEAR$PROP.TOT <- NGEAR$N/NGEAR$N.TOT
 
 
 ggplot(data=NGEAR[FYEAR>=2000])+geom_line(aes(x=FYEAR,y=PROP.TOT,group=NUM_GEAR,color=NUM_GEAR))
-ggsave("NumGear_reporting.jpeg",last_plot(),width=16,height=8,units="cm")
+ggsave(file.path(root_dir,"Outputs","NumGear_reporting.jpeg"),last_plot(),width=16,height=8,units="cm")
 
 
 

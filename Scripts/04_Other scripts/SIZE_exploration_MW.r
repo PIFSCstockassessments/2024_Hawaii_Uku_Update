@@ -1,9 +1,12 @@
 # This script explores and processes length data.
 require(data.table); require(parallel); require(tidyverse); require(readxl); require(TMB.LBSPR); require(plyr)
+require(this.path)
+
+root_dir <- here(..=2)
 
 # Read data in
-LH <- data.table( read_excel("Data/LifeHistory.xlsx") )
-L  <- readRDS("Outputs/CATCH_processed.rds")
+LH <- data.table( read_excel(file.path(root_dir,"Data/LifeHistory.xlsx")) )
+L  <- readRDS(file.path(root_dir,"Outputs/CATCH_processed.rds"))
 
 # Obtain mean weight and mean length per trip
 L           <- L[NUM!=0&LBS!=0] # Filter missing LBS and NUM
@@ -37,7 +40,7 @@ for(ar in 1:5){
  sec.graph[[ar]] <- ggplot(aDataset,aes(x=FYEAR,y=WEIGHT_G/1000))+geom_point()+geom_smooth(span=0.4)+
     ggtitle(paste0("Mean length in sector ",area.list[ar]))+
     theme_bw()  # Check GEAR_A by AREA_C for patterns
- filename <- file.path("Outputs/Graphs/Body",paste0("LFIGSECT",formatC(ar,width=2,flag="0"),".tiff"))
+ filename <- file.path(root_dir,"Outputs/Graphs/Body",paste0("LFIGSECT",formatC(ar,width=2,flag="0"),".tiff"))
  ggsave(sec.graph[[ar]], file=filename, width = 14, height = 8, units = "cm",dpi=150) 
 }
 
@@ -56,17 +59,17 @@ L     <- merge(L,W,by="AREA_C",all.x=T)
 SMRY <- L[NUM==1&GEAR_A=="DEEP_HANDLINE"&AREA_C!="NWHI",list(N=.N),by=list(FYEAR,AREA_C)]
 SMRY <- dcast(SMRY,FYEAR~AREA_C,value.var="N",fill=0)
 SMRY$TOT <- rowSums(SMRY[,2:5])
-write.csv(SMRY,file="Outputs/Graphs/Body/Sample size DSH.csv")
+write.csv(SMRY,file=file.path(root_dir,"Outputs/Graphs/Body/Sample size DSH.csv"))
 
 SMRY <- L[NUM==1&GEAR_A=="INSHORE_HANDLINE"&AREA_C!="NWHI",list(N=.N),by=list(FYEAR,AREA_C)]
 SMRY <- dcast(SMRY,FYEAR~AREA_C,value.var="N",fill=0)
 SMRY$TOT <- rowSums(SMRY[,2:5])
-write.csv(SMRY,file="Outputs/Graphs/Body/Sample size ISH.csv")
+write.csv(SMRY,file=file.path(root_dir,"Outputs/Graphs/Body/Sample size ISH.csv"))
 
 SMRY <- L[NUM==1&GEAR_A=="TROLLING"&AREA_C!="NWHI",list(N=.N),by=list(FYEAR,AREA_C)]
 SMRY <- dcast(SMRY,FYEAR~AREA_C,value.var="N",fill=0)
 SMRY$TOT <- rowSums(SMRY[,2:5])
-write.csv(SMRY,file="Outputs/Graphs/Body/Sample size TROLLING.csv")
+write.csv(SMRY,file=file.path(root_dir,"Outputs/Graphs/Body/Sample size TROLLING.csv"))
 
 # Distribution of mean length reported by individual trips (note: not a true size structure)
 LGR1 <- ggplot(L[(GEAR_A=="DEEP_HANDLINE"|GEAR_A=="INSHORE_HANDLINE"|GEAR_A=="TROLLING")&AREA_C!="NWHI"],aes(x=LENGTH_MM))+geom_histogram()+facet_grid(rows=vars(GEAR_A),cols=vars(AREA_C))+theme_bw()  # Check GEAR_A by AREA_C for patterns
@@ -115,12 +118,12 @@ D       <- dplyr::select(D,FYEAR,N,ML:MW,MW.CV,MW.SD,N)
 LGR7 <- ggplot(data=D,aes(x=FYEAR,y=ML))+geom_point()+geom_smooth(span=0.3)+theme_bw()
 LGR8 <- ggplot(data=D,aes(x=FYEAR,y=MW))+geom_point()+geom_smooth(span=0.3)+theme_bw()
 
-write.csv(D,"Outputs/SS3 inputs/Final_MW_timeseries.csv",row.names=F)
+write.csv(D,file.path(root_dir,"Outputs/SS3 inputs/Final_MW_timeseries.csv"),row.names=F)
 
 for(i in 1:8){  
   
   fig      <- paste0("LGR",i) 
-  filename <- file.path("Outputs/Graphs/Body",paste0("LFIG",formatC(i,width=2,flag="0"),".tiff"))
+  filename <- file.path(root_dir,"Outputs/Graphs/Body",paste0("LFIG",formatC(i,width=2,flag="0"),".tiff"))
   ggsave(eval(parse(text=fig)), file=filename, width = 14, height = 8, units = "cm",dpi=150)  
 }
 
@@ -153,10 +156,10 @@ K          <- merge(K,Total_Year,by=c("PERIOD","GEAR_B"))
 K$DENS     <- K$NUM/K$TOT
 
 LGR8 <- ggplot(data=K[GEAR_B=="COM_DEEP_HANDLINE"],aes(x=LENGTH_BIN,y=DENS,col=PERIOD))+geom_line()+theme_bw()
-ggsave(LGR8, file="Outputs/Graphs/Body/LFIG08.tiff", width = 14, height = 8, units = "cm",dpi=150)  
+ggsave(LGR8, file=file.path(root_dir,"Outputs/Graphs/Body/LFIG08.tiff"), width = 14, height = 8, units = "cm",dpi=150)  
 
 LGR9 <- ggplot(data=K[PERIOD=="P2010"],aes(x=LENGTH_BIN,y=DENS,col=GEAR_B))+geom_line()+theme_bw()
-ggsave(LGR9, file="Outputs/Graphs/Body/LFIG09.tiff", width = 14, height = 8, units = "cm",dpi=150)  
+ggsave(LGR9, file=file.path(root_dir,"Outputs/Graphs/Body/LFIG09.tiff"), width = 14, height = 8, units = "cm",dpi=150)  
 
 
 SEL.TIME   <- data.table(  dcast(K[GEAR_B=="COM_DEEP_HANDLINE"],LENGTH_BIN~PERIOD,value.var="NUM",fill=0)  )
@@ -165,8 +168,8 @@ K2         <- K[PERIOD=="P2020",list(NUM=sum(NUM)),by=list(GEAR_B,LENGTH_BIN)]
 SEL.GEAR   <- data.table(  dcast(K2,LENGTH_BIN~GEAR_B,value.var="NUM",fill=0)  )
 
 
-write.csv(SEL.TIME,"Outputs/Size_structure_Time.csv",row.names=F)
-write.csv(SEL.GEAR,"Outputs/Size_structure_Gear.csv",row.names=F)
+write.csv(SEL.TIME,file.path(root_dir,"Outputs/Size_structure_Time.csv"),row.names=F)
+write.csv(SEL.GEAR,file.path(root_dir,"Outputs/Size_structure_Gear.csv"),row.names=F)
 
 #================================= NWHI analyses
 
@@ -193,11 +196,11 @@ NW$ALL    <- rowSums(NW[,P1945:P2005])
 
 #NW        <- NW[8:19,] # Remove last two length bins to help model fit data
 
-write.csv(NW,"Outputs/Size_structure_Others.csv",row.names=F)
+write.csv(NW,file.path(root_dir,"Outputs/Size_structure_Others.csv"),row.names=F)
 
 # ===============================Run LBSPR model
 Model     <- c("DEEP","INSHORE","TROLLING","RARE","REC")[4]
-INP       <- data.table(  read_excel("Data/LBSPR.xlsx",sheet=Model)  )
+INP       <- data.table(  read_excel(file.path(root_dir,"Data/LBSPR.xlsx"),sheet=Model)  )
 
 Results   <- run_analyses(INP,paste0("APVI_",Model),
                           n_iteration=200,

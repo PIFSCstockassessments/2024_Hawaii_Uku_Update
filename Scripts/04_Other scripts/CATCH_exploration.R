@@ -1,8 +1,12 @@
 #============Catch exploration=============================
 require(ggplot2); require(data.table); require(reshape2); require(tidyverse); require(gridExtra); require(grid); require(RColorBrewer)
+require(this.path)
+
+root_dir <- here(..=2)
+
 
 # Load catch data and process
-C <- readRDS("Outputs/CATCH_processed.rds")
+C <- readRDS(file.path(root_dir,"Outputs/CATCH_processed.rds"))
 C <- C[AREA_D=="MHI"] # Filter invalid and NWHI areas
 C$TRIP <- paste(C$DATE,C$LICENSE,sep=".")
 
@@ -114,7 +118,7 @@ GR14 <- ggplot(data=FINFO,aes(x=FYEAR,y=LBS,fill=FISHER))+ggtitle("Catch of top 
 for(i in 1:14){  
   
   fig      <- paste0("GR",i) 
-  filename <- file.path("Outputs/Graphs/Catch",paste0("FIG",formatC(i,width=2,flag="0"),".tiff"))
+  filename <- file.path(root_dir,"Outputs/Graphs/Catch",paste0("FIG",formatC(i,width=2,flag="0"),".tiff"))
   ggsave(eval(parse(text=fig)), file=filename, width = 14, height = 8, units = "cm",dpi=150)  
 }
 

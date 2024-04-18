@@ -1,9 +1,13 @@
 # This script explores and processes length data.
 require(data.table); require(parallel); require(dplyr); require(ggplot2); require(readxl); require(SDMTools); require(TMB.LBSPR); require(plyr)
+require(this.path)
+
+root_dir <- here(..=2)
+
 
 # Read data in
-LH <- data.table( read_excel("Data/LifeHistory.xlsx") )
-L  <- readRDS("Outputs/CATCH_processed.rds")
+LH <- data.table( read_excel(file.path(root_dir,"Data/LifeHistory.xlsx")) )
+L  <- readRDS(file.path(root_dir,"Outputs/CATCH_processed.rds"))
 L  <- L[SPECIES==20]
 L  <- L[GEAR_A=="DEEP_HANDLINE"]
 BIN_SIZE     <- 25 # in mm
@@ -44,4 +48,4 @@ L <- dcast.data.table(L,FYEAR~LENGTH_BIN,value.var="NUM",fill=0)
 L <- merge(L,SAMPSIZE,by="FYEAR")
 L <- select(L,FYEAR,EFFN,3:ncol(L))
 
-write.csv(L,"Outputs/SS3 inputs/Size_structure_year.csv",row.names=F)
+write.csv(L,file.path(root_dir,"Outputs/SS3 inputs/Size_structure_year.csv"),row.names=F)

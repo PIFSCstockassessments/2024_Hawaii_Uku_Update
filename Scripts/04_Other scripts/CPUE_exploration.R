@@ -1,8 +1,12 @@
 require(ggplot2); require(data.table); require(dplyr); require(gridExtra)
+require(this.path)
+
+root_dir <- here(..=2)
+
 
 Gear.name <- c("DEEP_HANDLINE","INSHORE_HANDLINE","TROLLING")[1]
 
-P <- readRDS(paste0("Outputs/CPUE_",Gear.name,"_StepC.rds"))
+P <- readRDS(file.path(root_dir,paste0("Outputs/CPUE_",Gear.name,"_StepC.rds")))
 
 # Arrange datasets for CPUE standardization
 O <- P[DATE<"2003-01-01"]
@@ -78,14 +82,14 @@ GR18 <- ggplot(data=R[AREA_C=="Penguin"&UKUCPUE>0],aes(x=CUM_EXP_CAT,y=UKUCPUE))
 for(i in 15:18){  
   
   fig      <- paste0("GR",i) 
-  filename <- file.path(paste0("Outputs/Graphs/CPUE/",Gear.name),paste0("FIG",formatC(i,width=2,flag="0"),".tiff"))
+  filename <- file.path(root_dir,paste0("Outputs/Graphs/CPUE/",Gear.name),paste0("FIG",formatC(i,width=2,flag="0"),".tiff"))
   ggsave(eval(parse(text=fig)), file=filename, width = 14, height = 8, units = "cm",dpi=150)  
 }
 
 
 for(i in 1:6){  
   
-  filename <- file.path(paste0("Outputs/Graphs/CPUE/",Gear.name),paste0("NOMCPUEFIG",formatC(i,width=2,flag="0"),".tiff"))
+  filename <- file.path(root_dir,paste0("Outputs/Graphs/CPUE/",Gear.name),paste0("NOMCPUEFIG",formatC(i,width=2,flag="0"),".tiff"))
   ggsave(graph.list[[i]], file=filename, width = 14, height = 8, units = "cm",dpi=150)  
 }
 
