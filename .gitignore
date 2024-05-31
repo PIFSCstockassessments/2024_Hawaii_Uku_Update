@@ -1,10 +1,11 @@
 ## Folders
 Outputs
 Data
-01_SS final/Retrospective/*
-01_SS final/Jitters/*
-01_SS final/100_Profiles/*
+01_SS final/Retrospective
+01_SS final/Jitters
+01_SS final/100_Profiles
 01_SS final/*/Bootstraps
+01_SS final/Comparisons
 
 *.*
 !*.ss
