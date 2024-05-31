@@ -3,7 +3,7 @@ require(reshape2); require(ggplot2); require(tidyverse); require(parallel); requ
 require(foreach);  require(doParallel); require(data.table);require(ggpubr); require(writexl)
 
 ## ===========Manual Inputs===================
-     modelname <- "UkuFirstTests"
+     modelname <- "Uku2024Update"
 ##============================================
 
 root_dir  <- here(..=2)
@@ -16,15 +16,15 @@ file.copy(file.path(root_dir,"Data","AGEPRO40.exe"),file.path(model_dir))
 Input <- read.delim(file.path(model_dir,paste0(modelname,".inp")), fill=FALSE, stringsAsFactors = FALSE, header=FALSE)
 
 ##initial harvest scenario (based on 2014-2023 average catch)
-DSH    <- 0.23
+DSH    <- 0.24
 ISH    <- 0.05
 Troll  <- 0.04
 Others <- 0.06
-Rec    <- 0.62
+Rec    <- 0.60
 
-CatchBeforeProjection <- 109 # This is the 2021-2023 3-year average catch that is assume to happen in 2024 (since projections start in 2025)
-StartMaxCatch         <- 205 # This is the first catch scenario that will be implemented, from which we will decrease the catches iteratively
-StopMinCatch          <- 100 # This is the last catch scenario, the smallest one
+CatchBeforeProjection <- 111 # This is the 2021-2023 3-year average catch that is assume to happen in 2024 (since projections start in 2025)
+StartMaxCatch         <- 255 # This is the first catch scenario that will be implemented, from which we will decrease the catches iteratively
+StopMinCatch          <- 125 # This is the last catch scenario, the smallest one
 Decrease              <- 5   # Amount of catch reduction between each successive scenario
 NProj                 <- floor( (StartMaxCatch-StopMinCatch)/Decrease )
 
@@ -77,9 +77,9 @@ for (i in 1:NProj){
 }
 
 # Run AgePro in parallel
+setwd(model_dir)
 numCores <- detectCores()
 cl       <- makeCluster(numCores-2)
-setwd(model_dir)
 parLapply(cl,FileName,function(x) {
     system("cmd.exe", input = paste0("AGEPRO40.exe ",x))
 })
@@ -150,7 +150,7 @@ ggarrange(A,C,B, D, ncol=2, nrow=2,labels=c("A","B","C","D"),common.legend=T,leg
 ggsave(last_plot(),file=file.path(model_dir,"05_ProjectionByYear.png"),height=7,width=7,units="in",dpi=200)
 
 ggplot(data=PlotData[Year>2024])+
-    geom_line(aes(x=Catch,y=(SSB*1000)/2,linetype=as.factor(Year)))+
+    geom_line(aes(x=Catch,y=(SSB),linetype=as.factor(Year)))+
     theme_bw() +
     theme(legend.title=element_blank())+
     xlab("Catch (mt)")+

@@ -10,12 +10,15 @@ require(r4ss);require(plyr);require(tidyverse);require(this.path)
 root_dir     <- here(..=2)
 
 ## ===========Manual Inputs===================
-modelname       <- "UkuFirstTests"
+modelname       <- "Uku2024Update"
 timeperiod      <- "Year"
 n_years         <- 8
-n_sims          <- 200
-RefPointSSB     <- 293*2 # Multiply SSBmsst by 2 since Agepro accounts for Male+Females together
-RefPointF       <- 0.14 # Fmsy
+n_sims          <- 1000
+RefPointSSB     <- 355*2 # Multiply SSBmsst by 2 since Agepro accounts for Male+Females together
+RefPointF       <- 0.138 # Fmsy
+SR_alpha        <- 96.1
+SR_beta         <- 93.2*2  # This parameter is multiplied by 2 in the next section, to convert female-only to both-sex SSB equation (SS vs Agepro)
+sigmaR          <- 0.39
 ##============================================
 
 #============Recruitment model(s) - see Agepro manual and AGEPRO_Input.R for help defining rec_pars list==================
@@ -23,7 +26,7 @@ general_rec_pars <- list(RecFac=1000,SSBFac=1,MaxRecObs=100) # These are general
 
 rec_models       <- c(5,3,3)       # Vector of all recruitment models used
 rec_model_probs  <- c(0.6,0.2,0.2) # Probability of each model being used in a given year (applies to all projection years)
-rec_pars         <- list(list(ModelType=5,alpha=79.336,beta=153.85,var=0.1521), # Model 1 pars
+rec_pars         <- list(list(ModelType=5,alpha=SR_alpha,beta=SR_beta,var=sigmaR^2), # Model 1 pars
                          list(ModelType=3,StartYr=1948,EndYr=2004),             # Model 2 pars
                          list(ModelType=3,StartYr=2005,EndYr=2022))             # Model 3 pars
                          
@@ -37,7 +40,7 @@ n_rec_models     <- length(rec_models)
 # Key folders
 script.dir      <- file.path(root_dir,"Scripts","03_Agepro scripts") # where are your Rscripts
 boot_file       <- file.path(root_dir,"Outputs","Agepro","UkuBootstraps.bsn") ## where is your bootstrap file path
-basemodel_dir   <- file.path(root_dir,"01_SS final","01_base") # Where the model runs are stored
+basemodel_dir   <- file.path(root_dir,"01_SS final","01_Base") # Where the model runs are stored
 
 # Required functions
 source(file.path(script.dir,"Agepro Functions","SS_to_Agepro.R"))
@@ -163,7 +166,7 @@ AGEPRO_INP(         output.dir = file.path(root_dir,"Outputs","Agepro",modelname
                     ScaleFactor = c(1000,1000,1000),  #population scaling factor, recruitment scaling factor, SSB scaling factor
                     UserSpecified = c(0,0,0,0,0,0,0),
                     TimeVary = c(0,0,0,0,0,0,0),
-                    FemaleFrac=0.5,
+                    Biological=0,
                     Recruitment=Recruitment,
                     Harvest=Harvest,
                     doRebuild=FALSE,

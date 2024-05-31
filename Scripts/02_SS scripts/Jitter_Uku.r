@@ -5,9 +5,8 @@
 # R (tested in version(s) 3.3.2 - 3.5.2 64 bit Windows)
 ##
 library(r4ss); library(this.path)
-#devtools::install_github("r4ss/r4ss", ref="development")
-#?r4ss
-
+#remotes::install_github("r4ss/r4ss")
+#
 # Define the root directory for the run
 root_dir     <- here(..=2)
 dirname.root <- file.path(root_dir,"01_SS final","Jitters")
@@ -36,8 +35,8 @@ file.copy(paste(dirname.base,       "data.ss", sep="/"),
           paste(dirname.jitter,     "data.ss", sep="/"))	
 file.copy(paste(dirname.base,       "forecast.ss", sep="/"),
           paste(dirname.jitter,     "forecast.ss", sep="/"))
-file.copy(paste(dirname.base,       "ss.exe", sep="/"),
-          paste(dirname.jitter,     "ss.exe", sep="/"))
+file.copy(paste(dirname.base,       "ss_opt_win.exe", sep="/"),
+          paste(dirname.jitter,     "ss_opt_win.exe", sep="/"))
 file.copy(paste(dirname.base,       "ss.par", sep="/"),
           paste(dirname.jitter,     "ss.par", sep="/"))
 
@@ -61,7 +60,7 @@ Njitter=150
 #Njitter=1 #test
 
 #### Run jitter using this function (default is nohess)
-jit.likes <- jitter(mydir=dirname.jitter, Njitter=Njitter, extras="-nohess")
+jit.likes <- jitter(mydir=dirname.jitter, Njitter=Njitter, extras="-nohess",exe="ss_opt_win")
 
 setwd(dirname.plots)
 getwd()
@@ -82,11 +81,27 @@ wd <- dirname.jitter
 jitter=seq(1:Njitter)
 n=length(jitter)
 n
-witch_j <- SSgetoutput(keyvec=1:n, getcomp=FALSE, dirvec=wd, getcovar=F)
-witch_j_summary <- SSsummarize(witch_j)
+#witch_j <- SSgetoutput(keyvec=1:n, getcomp=F, dirvec=wd, getcovar=F,forecast=F)
+#witch_j_summary <- SSsummarize(witch_j)
+
+Results <- list()
+for(i in 1:Njitter){
+  
+  Results <- append(Results,list(SS_output(dir=file.path(dirname.jitter),
+                                           repfile=paste0("Report",i,".sso"),
+                                           compfile=paste0("CompReport",i,".sso"),
+                                           readwt=F)))
+  }
+
+witch_j_summary <- SSsummarize(Results,verbose=F)
+
+SSplotComparisons(witch_j_summary,plotdir = dirname.plots,png=T,legend=F)
+
 
 #Likelihood across runs
 likes=witch_j_summary$likelihoods
+
+likes.tot <- as.numeric(t(likes[1,]))
 
 #Derived quants across runs
 quants=witch_j_summary$quants
@@ -95,14 +110,14 @@ quants=witch_j_summary$quants
 pars=witch_j_summary$pars
 
 #Write more output tables to jitter directory
-write.table(quants,"Quants.csv")
-write.table(pars,"Pars.csv")
-write.table(likes,"Likelihoods.csv")
+write.table(quants,file.path(dirname.plots,"Quants.csv"))
+write.table(pars,file.path(dirname.plots,"Pars.csv"))
+write.table(likes,file.path(dirname.plots,"Likelihoods.csv"))
 
 #Retabulate total likelihoods necessary to assess global convergence and compare to jit.likes from above 
 x<-as.numeric(likes[likes$Label=="TOTAL",1:n])
 global.convergence<-table(x,exclude = NULL)
-write.table(global.convergence,"global_convergence.csv")
+write.table(global.convergence,file.path(dirname.plots,"global_convergence.csv"))
 
 
 #------------ Make plots with r4ss for runs ending at a converged solution -------------------------------
@@ -117,7 +132,7 @@ getwd()
 png("Jittering results.png", width = 480, height = 480)
 par(mfrow=c(2,2), mai=c(.6,.6,.3,.2), mex=.5)
 plot(seq(1:Njitter), witch_j_summary$likelihoods[witch_j_summary$likelihoods$Label=="TOTAL",1:Njitter],ylab="LL",
-     ylim=c(0,max(na.omit(jit.likes))*1.05)) ; mtext(side=3, line=0, "Jittering")
+     ylim=c(0,max(na.omit(likes.tot))*1.05)) ; mtext(side=3, line=0, "Jittering")
 abline(h=Base$likelihoods_used[1,1], col=2)
 
 SSplotComparisons(witch_j_summary,     subplots =  c(2,8,18) , pch = "",legend=FALSE  ,lwd = 1 ,new = F, plotdir = plotdir, ylimAdj=1)
@@ -129,7 +144,7 @@ par(mfrow=c(1,1), mai=c(.6,.6,.3,.2), mex=.5)
 plot(seq(1:Njitter), 
      witch_j_summary$likelihoods[witch_j_summary$likelihoods$Label=="TOTAL",1:Njitter],
      ylab="Total likelihood",
-     ylim=c(0,max(na.omit(jit.likes))*1.05),
+     ylim=c(0,max(na.omit(likes.tot))*1.05),
      xlab="Jitter model runs at a converged solution"
 )
 #mtext(side=3, line=0, "Jittering")     

@@ -7,8 +7,6 @@
 
 library(r4ss); library(this.path)
 root_dir<-this.path::here(..=2)
-#devtools::install_github('r4ss/r4ss')
-#?r4ss
 
 #################################################### Step 1
 # Identify restrospective period
@@ -40,7 +38,7 @@ file.copy(paste(dirname.completed.model.run,       "starter.ss_new", sep="/"),
           paste(dirname.Retrospective, "starter.ss", sep="/"))
 file.copy(paste(dirname.completed.model.run,       "control.ss_new", sep="/"),
           paste(dirname.Retrospective, "control.ss", sep="/"))
-file.copy(paste(dirname.completed.model.run,       "data.ss_new", sep="/"),
+file.copy(paste(dirname.completed.model.run,       "data_echo.ss_new", sep="/"),
           paste(dirname.Retrospective, "data.ss", sep="/"))	
 file.copy(paste(dirname.completed.model.run,       "forecast.ss", sep="/"),
           paste(dirname.Retrospective, "forecast.ss", sep="/"))
@@ -71,7 +69,7 @@ write(starter, paste(dirname.Retrospective, "starter.ss", sep="/"))
 
 ##################################################### Step 4
 ## Run the retrospective analyses with r4SS function "SS_doRetro"
-retro(masterdir=dirname.Retrospective, oldsubdir="", newsubdir="retrospectives", years=start.retro:-end.retro)
+retro(dir=dirname.Retrospective, oldsubdir="", newsubdir="retrospectives", years=start.retro:-end.retro,exe="ss_opt_win")
 
 # Read "SS_doRetro" output
 retroModels <- SSgetoutput(dirvec=file.path(dirname.Retrospective, "retrospectives",paste("retro",start.retro:-end.retro,sep="")))

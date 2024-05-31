@@ -70,7 +70,7 @@
 0 # 0/1 to use steepness in initial equ recruitment calculation
 0 #  future feature:  0/1 to make realized sigmaR a function of SR curvature
 #_    LO   HI    INIT   PRIOR   PR_SD    PR_type   PHASE env-var use_dev   dev_mnyr   dev_mxyr  dev_PH   Block Blk_Fxn #  parm_name
-    3   6       4.3157   4.3157 99    0    1    0    0    0    0    0    0    0 # SR_LN(R0)
+    4   5         4.5   4.5   99    0    -1    0    0    0    0    0    0    0 # SR_LN(R0)
   0.2    1       0.81    0.81   99    0   -4    0    0    0    0    0    0    0 # SR_BH_steep
     0    2       0.39    0.39   99    0   -3    0    0    0    0    0    0    0 # SR_sigmaR
    -5    5          0       0   99    0   -1    0    0    0    0    0    0    0 # SR_regime
@@ -84,11 +84,11 @@
 1 #_recdev_early_phase
 0 #_forecast_recruitment phase (incl. late recr) (0 value resets to maxphase+1)
 1 #_lambda for Fcast_recr_like occurring before endyr+1
-1938.8   #_last_early_yr_nobias_adj_in_MPD 
-1964.4   #_first_yr_fullbias_adj_in_MPD 
-1990.6   #_last_yr_fullbias_adj_in_MPD 
-2017.3   #_first_recent_yr_nobias_adj_in_MPD 
-0.445  #_max_bias_adj_in_MPD (1.0 to mimic pre-2009 models) 
+1932.6   #_last_early_yr_nobias_adj_in_MPD 
+1982.0   #_first_yr_fullbias_adj_in_MPD 
+1987.5   #_last_yr_fullbias_adj_in_MPD 
+2012.3   #_first_recent_yr_nobias_adj_in_MPD 
+0.5241  #_max_bias_adj_in_MPD (1.0 to mimic pre-2009 models) 
 0   #_period of cycles in recruitment (N parms read below)
 -10 #min rec_dev
 10  #max rec_dev
@@ -112,7 +112,7 @@
 #
 #_initial_F_parms; count = 1
 #_  LO  HI INIT  PRIOR PR_SD  PR_type  PHASE
- 0.001   0.5 0.12 0.1 99  0   1 # InitF_seas_1_flt_Com
+ 0.01   0.3 0.11 0.1 99  0   1 # InitF_seas_1_flt_Com
 #
 #_Q_setup
 #_1:  link type: (1=simple q, 1 parm; 2=mirror simple q, 1 mirrored parm; 3=q and power, 2 parm)
@@ -125,17 +125,17 @@
    2   1   0   0   0   0  #  CPUE_DSH_recent
    3   1   0   0   0   0  #  CPUE_ISH_recent
    4   1   0   0   0   0  #  CPUE_Trol_recent
-   7  1   0   0   0   0  #  OPUE_Divers
+   7   1   0   0   0   0  #  OPUE_Divers
 -9999 0 0 0 0 0
 #
 #_Cond  0 #_If q has random component then 0=read one parm for each fleet with random q; 1=read a parm for each year of index     
 #_Q_parms(if_any);Qunits_are_ln(q)
 #_    LO   HI    INIT PRIOR PR_SD PR_type PHASE env-var use_dev   dev_mnyr   dev_mxyr  dev_PH   Block Blk_Fxn  #  parm_name
-     -10   0     -5    0    1    0   1    0    0    0    0    0    0    0  #  LnQ_base_CPUE_DSH_old(1)
-     -15   0     -7    0    2    0   1    0    0    0    0    0    0    0  #  LnQ_base_CPUE_DSH_recent(2)
-     -10   0     -7    0    2    0   1    0    0    0    0    0    0    0  #  LnQ_base_CPUE_ISH_recent(3)
-     -15   0     -11   0    2    0   1    0    0    0    0    0    0    0  #  LnQ_base_CPUE_Trol_recent(4)
-     -15   0     -10   0    2    0   1    0    0    0    0    0    0    0  #  LnQ_base_OPUE_Divers(7)    
+     -10   -2     -5    0    1    0   1    0    0    0    0    0    0    0  #  LnQ_base_CPUE_DSH_old(1)
+     -15   -2    -7    0    2    0   1    0    0    0    0    0    0    0  #  LnQ_base_CPUE_DSH_recent(2)
+     -10   -2     -7    0    2    0   1    0    0    0    0    0    0    0  #  LnQ_base_CPUE_ISH_recent(3)
+     -15   -2    -10   0    2    0   1    0    0    0    0    0    0    0  #  LnQ_base_CPUE_Trol_recent(4)
+     -15   -2     -9   0    2    0   1    0    0    0    0    0    0    0  #  LnQ_base_OPUE_Divers(7)    
 #
 #_size_selex_types
 #_Pattern Discard Male Special
@@ -158,8 +158,8 @@
   0    0 0    0 # 10 OPUE_Divers
 #
 #_  LO   HI    INIT   PRIOR   PR_SD    PR_type   PHASE env-var use_dev   dev_mnyr   dev_mxyr  dev_PH   Block Blk_Fxn  #  parm_name
-    40   80   51.6    51.6   99    0     2    0    0    0    0    0    0    0  #  SizeSel_P1_Com_Deep(1)
-    5   40   16.5    16.5   99     0     3    0    0    0    0    0    0    0  #  SizeSel_P2_Com_Deep(1)
+    40  80    53.4    53.4   99    0     2    0    0    0    0    0    0    0  #  SizeSel_P1_Com_Deep(1)
+    5   40    20.4    20.4   99    0     3    0    0    0    0    0    0    0  #  SizeSel_P2_Com_Deep(1)
    -1   -1      -1      -1   99    0    -4    0    0    0    0    0    0    0  #  SizeSel_P1_Com_Deep_Recent(2)
    -1   -1      -1      -1   99    0    -4    0    0    0    0    0    0    0  #  SizeSel_P2_Com_Deep_Recent(2)
     5   90    34.9    34.9   99    0    -2    0    0    0    0    0    0    0  #  SizeSel_P1_Com_Inshore(3)
@@ -206,7 +206,6 @@
 # Like_comp codes:  1=surv; 2=disc; 3=mnwt; 4=length; 5=age; 6=SizeFreq; 7=sizeage; 8=catch; 9=init_equ_catch; 
 # 10=recrdev; 11=parm_prior; 12=parm_dev; 13=CrashPen; 14=Morphcomp; 15=Tag-comp; 16=Tag-negbin; 17=F_ballpark
 #like_comp fleet  phase  value  sizefreq_method
- 9  1   1   1  1
  -9999   1   1   1  1  #  terminator
 0 # (0/1) read specs for more stddev reporting 
 # placeholder for vector of selex bins to be reported

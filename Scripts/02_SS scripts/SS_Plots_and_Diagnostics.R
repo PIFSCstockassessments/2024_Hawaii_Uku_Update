@@ -1,171 +1,66 @@
-library(r4ss);library(ggplot2);library(reshape2);library(scales);library(RColorBrewer);library(gridExtra);library(tidyr)
+library(r4ss);library(ggplot2);library(reshape2);library(scales);library(RColorBrewer);library(gridExtra);library(tidyverse)
 require(this.path)
 
-root_dir <- this.path::here(..=2)
-wd       <- file.path(root_dir,"01_SS final/01_Base" )
+root_dir  <- this.path::here(..=2)
+model.dir <- file.path(root_dir,"01_SS final","01_Base" )
 
-base.model <- SS_output(wd)
-
-#Comparisons <- SSgetoutput(dirvec=c(wd,wd2))
-#Start1970   <- SSsummarize(Comparisons)
-#SSplotComparisons(Start1970)
-
-#TimeVaryQ<-SSsummarize(Comparisons)
-#SSplotComparisons(TimeVaryQ, print=TRUE, plotdir=wd2, legendlabels = c("Basecase","Time-varying q"), indexfleets=c(6,7,8,9,10))
-#TimeQ<-SS_output(wd2)
-#SS_plots(TimeQ)
-
-
-##run a model with F set in the starter menu to raw F
-#rawFModel<-SS_output(wdF)
-
-##To make a better looking data plot
-## only necessary if the data plot is squished. May need to adjust the margins to fit the data
-# SSplotData(base.model,pheight=7, pwidth = 10, margins = c(5.1,2.1,2.1,18.1),plot=TRUE, print=TRUE)
-
-##### Comment 1
-
-#####
-
-##Retrospective analysis and plots
-
-origdir<-wd
-
-##automatically does a 5 year retrospective. change years to do longer or shorter retros
-retro(dir=origdir,oldsubdir = "", newsubdir = "retrospectives",years=0:-5, extras = "-nohess -nox")
-## load the models
-retroModels <- SSgetoutput(dirvec=file.path(origdir, "retrospectives",paste("retro",0:-5,sep="")))
-##plot the models
-retroSummary <- SSsummarize(retroModels)
-endyrvec <- retroSummary$endyrs + 0:-5
-SSplotComparisons(retroSummary, endyrvec=endyrvec, legendlabels=paste("Data",0:-5,"years"),png=TRUE, plotdir=origdir, legend= FALSE, type="l", sprtarg =0, indexfleets = 1:10)
-
-## create biomass and SPR retrospective plots. Be sure to update years as necessary
-SummaryBio<-retroSummary$SpawnBio
-names(SummaryBio)<-c("basecase","retro-1","retro-2","retro-3","retro-4","retro-5","Label","Yr")
-SSBMSY<-retroSummary$quants[which(retroSummary$quants$Label=="SSB_MSY"),]
-SSBMSST<-0.9*SSBMSY[,1:6]
-SummaryBratio<-as.data.frame(matrix(NA,ncol=8, nrow=nrow(SummaryBio)))
-for(i in 1:6){
-  for (j in 1:nrow(SummaryBio)){
-  SummaryBratio[j,i]<-SummaryBio[j,i]/SSBMSST[i]
-}}
-SummaryBratio[,7:8]<-SummaryBio[,7:8]
-SummaryBio<-melt(SummaryBio,id.vars=c("Label","Yr"))
-SummaryBio<-subset(SummaryBio,Yr>=1948)
-RemoveVector<-c(which(SummaryBio$variable=="retro-1"&SummaryBio$Yr==2023),which(SummaryBio$variable=="retro-2"&SummaryBio$Yr>=2017),which(SummaryBio$variable=="retro-3"&SummaryBio$Yr>=2016),which(SummaryBio$variable=="retro-4"&SummaryBio$Yr>=2015),which(SummaryBio$variable=="retro-5"&SummaryBio$Yr>=2014))
-SummaryBio<-SummaryBio[-RemoveVector,]
-
-names(SummaryBratio)<-c("basecase","retro-1","retro-2","retro-3","retro-4","retro-5","Label","Yr")
-SummaryBratio<-melt(SummaryBratio,id.vars=c("Label","Yr"))
-SummaryBratio<-subset(SummaryBratio,Yr>=1948)
-RemoveVector<-c(which(SummaryBratio$variable=="retro-1"&SummaryBratio$Yr==2023),which(SummaryBratio$variable=="retro-2"&SummaryBratio$Yr>=2017),which(SummaryBratio$variable=="retro-3"&SummaryBratio$Yr>=2016),which(SummaryBratio$variable=="retro-4"&SummaryBratio$Yr>=2015),which(SummaryBratio$variable=="retro-5"&SummaryBratio$Yr>=2014))
-SummaryBratio<-SummaryBratio[-RemoveVector,]
-
-
-a<-ggplot() +
-  geom_line(aes(x=Yr,y=value,color=variable),data=SummaryBio, size=0.9) +
-  theme(panel.border = element_rect(color="black",fill=NA,size=1),
-        panel.background = element_blank(), strip.background = element_blank(),
-        legend.position = "none") +
-  scale_color_manual(values = c("basecase" = "black","retro-1" = "red", "retro-2"="orange","retro-3"="yellow","retro-4"="green","retro-5"="blue", "basecase"="black")) + xlab("Year") + ylab("Spawning Biomass (mt)") +
-  geom_line(aes(x=Yr,y=value),data=subset(SummaryBio,variable=="basecase"),color="black", size=1)
-
-
-
-c<-ggplot() +
-  geom_line(aes(x=Yr,y=value,color=variable),data=SummaryBratio, size=0.9) +
-  theme(panel.border = element_rect(color="black",fill=NA,size=1),
-        panel.background = element_blank(), strip.background = element_blank(),
-        legend.position = "none") +
-  scale_color_manual(values = c("basecase" = "black","retro-1" = "red", "retro-2"="orange","retro-3"="yellow","retro-4"="green","retro-5"="blue", "basecase"="black")) + xlab("Year") + ylab("SSB/SSBMSST") +
-  geom_line(aes(x=Yr,y=value),data=subset(SummaryBratio,variable=="basecase"),color="black", size=1) +
-  ylim(0,3) + geom_hline(aes(yintercept=1), linetype="dashed", data=SummaryBratio)
-
-
-
-
-FishingMort<-retroSummary$Fvalue
-names(FishingMort)<-c("basecase","retro-1","retro-2","retro-3","retro-4","retro-5","Label","Yr")
-FishingMort<-melt(FishingMort,id.vars=c("Label","Yr"))
-FishingMort<-subset(FishingMort,Yr>=1948)
-RemoveVector<-c(which(FishingMort$variable=="retro-1"&FishingMort$Yr==2023),which(FishingMort$variable=="retro-2"&FishingMort$Yr>=2017),which(FishingMort$variable=="retro-3"&FishingMort$Yr>=2016),which(FishingMort$variable=="retro-4"&FishingMort$Yr>=2015),which(FishingMort$variable=="retro-5"&FishingMort$Yr>=2014))
-FishingMort<-FishingMort[-RemoveVector,]
-
-b<-ggplot() +
-  geom_line(aes(x=Yr,y=value,color=variable),data=FishingMort, size=1) +
-  theme(panel.border = element_rect(color="black",fill=NA,size=0.9),
-        panel.background = element_blank(), strip.background = element_blank(),
-        legend.position = "none") +
-  scale_color_manual(values = c("basecase" = "black","retro-1" = "red", "retro-2"="orange","retro-3"="yellow","retro-4"="green","retro-5"="blue", "basecase"="black")) + xlab("Year") + ylab("F/FMSY") +
-  geom_line(aes(x=Yr,y=value),data=subset(FishingMort,variable=="basecase"),color="black", size=1) +
-  scale_y_continuous(limits = c(0,1.25)) + geom_hline(aes(yintercept=1), linetype="dashed", data=FishingMort)
-
-png("Retrospectives.png",height=4, width=8, units="in", res=300)
-grid.arrange(c,b,ncol=2)
-dev.off()
-
+base.model <- SS_output(model.dir)
 
 ## For the annual time series of F/Fmsy, Biomass, Recruitment, and SSB:
-
-SummBio<-base.model$timeseries[,c("Yr","Seas","Bio_all","Bio_smry","SpawnBio","Recruit_0")]
-SumBioAll<-subset(SummBio,Seas==1)[,c("Yr","Bio_all")]
-SumBiosmry<-subset(SummBio,Seas==1)[,c("Yr","Bio_smry")]
+SummBio    <- base.model$timeseries[,c("Yr","Seas","Bio_all","Bio_smry","SpawnBio","Recruit_0")]
+SumBioAll  <- subset(SummBio,Seas==1)[,c("Yr","Bio_all")]
+SumBiosmry <- subset(SummBio,Seas==1)[,c("Yr","Bio_smry")]
 
 ##these have to be updated based upon the corresponding values in the base model (already  done for Uku)
-
 SumRecruit  <- base.model$derived_quants %>% filter(between(Label,"Recr_1948","Recr_2023")) %>% 
                mutate(Year=as.numeric(str_sub(Label,(str_length(Label)-3)),str_length(Label))) %>%  select(Year,Value,StdDev)
 SumBioSpawn <- base.model$derived_quants %>% filter(between(Label,"SSB_1948","SSB_2023")) %>%
                mutate(Year=as.numeric(str_sub(Label,(str_length(Label)-3)),str_length(Label))) %>% select(Year,Value,StdDev)
 Fseries     <- base.model$derived_quants %>% filter(between(Label,"F_1948","F_2023")) %>%
                mutate(Year=as.numeric(str_sub(Label,(str_length(Label)-3)),str_length(Label))) %>% select(Year,Value,StdDev)
-
 SSBRatio    <- SumBioSpawn$Value/base.model$derived_quants[1,2]
-
 
 #Fishing Mortality
 ggplot()+
   geom_point(aes(x=Year,y=Value), data=Fseries,size=4)+
-  geom_errorbar(aes(x=Year,ymin=Value-1.96*StdDev,ymax=Value+1.96*StdDev),data=Fseries,size=1.5)+
-  geom_line(aes(x=Year,y=Value),data=Fseries,size=1)+
-  geom_hline(yintercept=0.137,color="green",linetype = 2, size=1.5)+
+  geom_errorbar(aes(x=Year,ymin=Value-1.96*StdDev,ymax=Value+1.96*StdDev),data=Fseries,linewidth=1.5)+
+  geom_line(aes(x=Year,y=Value),data=Fseries,linewidth=1)+
+  geom_hline(yintercept=0.137,color="green",linetype = 2, linewidth=1.5)+
   ylab("Fishing Mortality (Ages 5-30)") +
   theme(axis.text.x=element_text(size=18,face="bold"), axis.title.x=element_text(size=24,face="bold"),
         axis.text.y=element_text(size=18,face="bold"),axis.title.y=element_text(size=24,face="bold"),
-        panel.border = element_rect(color="black",fill=NA,size=2),
+        panel.border = element_rect(color="black",fill=NA,linewidth=2),
         panel.background = element_blank())+
   geom_text(aes(x = 2021,y=0.18,label=as.character(expression(F[MSY]))),parse=TRUE, size=8) +
   scale_x_continuous(breaks=seq(1948,2023,5))
 
-ggsave(last_plot(),file=file.path(root_dir,"F_Series.png"),height=8,width=16,units="in",dpi=300)
-
+ggsave(last_plot(),file=file.path(model.dir,"01_F_Series.png"),height=8,width=16,units="in",dpi=300)
 
 ##Recruitment
 ## recruitment should end in 2023 as it is the last year estimated in the model. the final year of the model (2023) is based upon the S/R curve and NOT the data
 
-SumRecruit$LB<-SumRecruit$Value-1.96*SumRecruit$StdDev
-SumRecruit$LB<-ifelse(SumRecruit$LB<0,0,SumRecruit$LB)
-SumRecruit<-SumRecruit[-nrow(SumRecruit),]
+SumRecruit$LB <-SumRecruit$Value-1.96*SumRecruit$StdDev
+SumRecruit$LB <-ifelse(SumRecruit$LB<0,0,SumRecruit$LB)
+SumRecruit    <-SumRecruit[-nrow(SumRecruit),]
 
 ggplot()+
   geom_point(aes(x=Year,y=Value), data=SumRecruit,size=4)+
-  geom_errorbar(aes(x=Year,ymin=LB,ymax=Value+1.96*StdDev),data=SumRecruit,size=1.5)+
-  geom_line(aes(x=Year,y=Value),data=SumRecruit,size=1)+
+  geom_errorbar(aes(x=Year,ymin=LB,ymax=Value+1.96*StdDev),data=SumRecruit,linewidth=1.5)+
+  geom_line(aes(x=Year,y=Value),data=SumRecruit,linewidth=1)+
   ylab("Recruitment (thousands of age-0 recruits)") +
   theme(axis.text.x=element_text(size=18,face="bold"), axis.title.x=element_text(size=24,face="bold"),
         axis.text.y=element_text(size=18,face="bold"),axis.title.y=element_text(size=24,face="bold"),
         panel.border = element_rect(color="black",fill=NA,size=2),
         panel.background = element_blank())+scale_x_continuous(breaks=seq(1945,2023,5))
 
-ggsave(last_plot(),file=file.path(root_dir,"Recruitment.png"),height=8,width=16,units="in",dpi=300)
+ggsave(last_plot(),file=file.path(model.dir,"02_Recruitment.png"),height=8,width=16,units="in",dpi=300)
 
 #SSB
 ggplot()+
   geom_point(aes(x=Year,y=Value), data=SumBioSpawn,size=4)+
-  geom_errorbar(aes(x=Year,ymin=Value-1.96*StdDev,ymax=Value+1.96*StdDev),data=SumBioSpawn,size=1.5)+
-  geom_line(aes(x=Year,y=Value),data=SumBioSpawn,size=1)+
-  geom_hline(yintercept=0.9*base.model$derived_quants[which(base.model$derived_quants[,1]=="SSB_MSY"),2],color="green",linetype = 2, size=1.5)+
+  geom_errorbar(aes(x=Year,ymin=Value-1.96*StdDev,ymax=Value+1.96*StdDev),data=SumBioSpawn,linewidth=1.5)+
+  geom_line(aes(x=Year,y=Value),data=SumBioSpawn,linewidth=1)+
+  geom_hline(yintercept=0.9*base.model$derived_quants[which(base.model$derived_quants[,1]=="SSB_MSY"),2],color="green",linetype = 2, linewidth=1.5)+
   ylab("Female Spawning Biomass (mt)") +
   theme(axis.text.x=element_text(size=24,face="bold"), axis.title.x=element_text(size=30,face="bold"),
         axis.text.y=element_text(size=24,face="bold"),axis.title.y=element_text(size=30,face="bold"),
@@ -174,16 +69,12 @@ ggplot()+
   geom_text(aes(x = 2015,y=base.model$derived_quants[which(base.model$derived_quants[,1]=="SSB_MSY"),2]+10,label=as.character(expression(SSB[MSST]))),parse=TRUE, size=10) +
   scale_x_continuous(breaks=seq(1945,2023,5))
 
-ggsave(last_plot(),file=file.path(root_dir,"Biomass_SSB.png"),height=8,width=18,units="in",dpi=300)
-
-
-
+ggsave(last_plot(),file=file.path(model.dir,"03_Biomass_SSB.png"),height=8,width=18,units="in",dpi=300)
 
 ## Summary Biomass
-png("Biomass_smry.png",height=8,width=18, units="in",res=300)
 ggplot()+
   geom_point(aes(x=Yr,y=Bio_smry), data=SumBiosmry,size=4)+
-  geom_line(aes(x=Yr,y=Bio_smry), data=SumBiosmry[-1,],size=1)+
+  geom_line(aes(x=Yr,y=Bio_smry), data=SumBiosmry[-1,],linewidth=1)+
   ylab("Biomass (mt, ages 1+)") +
   xlab("Year")+
   theme(axis.text.x=element_text(size=24,face="bold"), axis.title.x=element_text(size=30,face="bold"),
@@ -192,15 +83,14 @@ ggplot()+
         panel.background = element_blank())+
   scale_x_continuous(breaks=seq(1948,2023,5)) +
   scale_y_continuous(limits = c(0,3000),label = comma)
-dev.off()
 
+ggsave(last_plot(),file=file.path(model.dir,"04_Biomass_smry.png"),height=8,width=18,units="in",dpi=300)
 
 ##CPUE Plots
+CPUE    <- base.model$cpue[,c("Fleet","Fleet_name","Yr","Seas","Obs","Exp","SE")]
+CPUE$SE <- ifelse(CPUE$Fleet==10,CPUE$SE,CPUE$SE+0.1)
+CPUE$LL <- ifelse(CPUE$Obs-1.96*CPUE$SE>=0,CPUE$Obs-1.96*CPUE$SE,0)
 
-CPUE<-base.model$cpue[,c("Fleet","Fleet_name","Yr","Seas","Obs","Exp","SE")]
-CPUE$SE<-ifelse(CPUE$Fleet==10,CPUE$SE,CPUE$SE+0.1)
-CPUE$LL<-ifelse(CPUE$Obs-1.96*CPUE$SE>=0,CPUE$Obs-1.96*CPUE$SE,0)
-png("CPUE_index.png",height=16,width=12,units="in",res=300)
 ggplot()+
   geom_point(aes(x=Yr,y=Obs),data=CPUE) +
   geom_errorbar(aes(x=Yr,ymin=LL,ymax=Obs+1.96*SE),data=CPUE,width=0) +
@@ -212,93 +102,45 @@ ggplot()+
         strip.text = element_text(size=16),
         axis.text.x=element_text(size=20,face="bold"), axis.title.x=element_text(size=30,face="bold"),
         axis.text.y=element_text(size=24,face="bold"),axis.title.y=element_text(size=30,face="bold")) +
-  xlab("Year") + ylab("CPUE") +
-  scale_x_continuous(breaks=seq(1948,2023,5))
-dev.off()
+        xlab("Year") + ylab("CPUE") +
+        scale_x_continuous(breaks=seq(1948,2023,5))
 
-
-
-## Jitter analysis
-## 1. make a folder named "Jitter" with the starter, forecast, data, control, and ss.par files and ss executible
-Jitterwd <- file.path(root_dir,"01_SS final","Jitters") 
-
-#### Change starter file appropriately (can also edit file directly)
-starter <- SS_readstarter(file.path(Jitterwd, 'starter.ss'))
-# Change to use .par file
-starter$init_values_src = 1
-# Change jitter (0.1 is an arbitrary, but common choice for jitter amount)
-starter$jitter_fraction = 0.1
-# write modified starter file
-SS_writestarter(starter, dir=Jitterwd, overwrite=TRUE)
-# number of jitters to run
-Njitter<-150
-#### Run jitter using this function
-jit.likes <- jitter(dir=Jitterwd, Njitter=Njitter, Intern=FALSE)
-
-#### Read in results using other r4ss functions
-# (note that un-jittered model can be read using keyvec=0:Njitter)
-profilemodels <- SSgetoutput(dirvec=Jitterwd, keyvec=1:Njitter, getcovar=FALSE)
-# summarize output
-profilesummary <- SSsummarize(profilemodels)
-# Likelihoods
-likelihoods<-t(as.matrix(profilesummary$likelihoods[1,1:Njitter]))
-R0<-t(as.matrix(profilesummary$pars[15,1:Njitter]))
-
-# Parameters
-#profilesummary$pars
-ggplot()+
-    geom_point(aes(x=R0,y=likelihoods)) +
-    geom_point(aes(x=base.model$parameters["SR_LN(R0)","Value"], y=base.model$likelihoods_used["TOTAL","values"]),col="red", shape=15) +
-    theme_bw() +
-    ylab("Likelihood")+
-    xlab("ln(R0)")
-##plot Jitter MLEs vs R0
+ggsave(last_plot(),file=file.path(model.dir,"05_CPUE_index.png"),height=16,width=12,units="in",dpi=300)
 
 ##For the catch summary figure (by year and fleet)
-    ## This one looks better than the one from r4ss
+## This one looks better than the one from r4ss
 ## Unnecessary for Uku, useful for international fisheries
- Catch<-base.model$catch[,c("Fleet","Fleet_Name","Yr","Seas","Obs")]
+ Catch <- base.model$catch[,c("Fleet","Fleet_Name","Yr","Seas","Obs")] %>% filter(Fleet!=2&Fleet!=7)
 
  colourCount = length(unique(Catch$Fleet_Name))
  getPalette =colorRampPalette(brewer.pal(11, "Spectral"))
  Fill<-getPalette(colourCount)
- png("Catch.png", height=4, width=8, units="in",res=300)
  ggplot()+
      geom_bar(aes(x=Yr,y=Obs,fill=Fleet_Name),data=Catch,stat="identity",color="black") +
      scale_fill_manual(values = Fill, name="")+
      xlab("Year") +
      ylab("Catch (mt)") +
      theme_bw() 
-dev.off()
+
+ggsave(last_plot(),file=file.path(model.dir,"06_Catch.png"),height=4,width=8,units="in",dpi=300)
 
 CatchLabels<-c("Deep Sea Handline","Inshore Handline",  "Commercial Other", "Trolling","Recreational")
-names(CatchLabels)<-c("Catch_Com_DSH", "Catch_Com_ISH", "Catch_Com_Other", "Catch_Com_Trol", "Catch_Rec")
+names(CatchLabels)<-c("Com_DSH_Old", "Com_ISH", "Com_Other", "Com_Trol", "Rec")
 
-png("CatchByFleet2.png",height=12,width=10, units="in",res=300)
 ggplot()+
   geom_line(aes(x=Yr,y=Obs,colour=Fleet_Name),data=subset(Catch,Yr>1948),stat="identity") +
-  scale_color_manual(values = c(Fill[c(1,2,4,5)],"black"), name="")+
   xlab("Year") +
   ylab("Catch (mt)") +
   theme_bw(base_size=22) +
   facet_wrap(~Fleet_Name,scales="free_y",ncol=2,labeller = labeller(Fleet_Name=CatchLabels) ) +
   theme(legend.position="none", strip.background = element_blank())
-dev.off()
+
+ggsave(last_plot(),file=file.path(model.dir,"07_CatchByFleet2.png"),height=12,width=10,units="in",dpi=300)
+
 
 ### Fishing mortality by fleet
-FbyFleet<-base.model$catch[,c("Fleet_Name","Yr","F")]
+FbyFleet<-base.model$catch[,c("Fleet_Name","Yr","F")] %>% filter(Fleet_Name!="Com_DSH_Recent"&Fleet_Name!="Divers")
 
-png("FByFleet1.png",height=8,width=12, units="in",res=200)
-ggplot()+
-  geom_line(aes(x=Yr,y=F,colour=Fleet_Name),data=subset(FbyFleet,Yr>=1948),stat="identity") +
-#  scale_color_manual(values = Fill, name="")+
-  xlab("Year") +
-  ylab("Catch (mt)") +
-  theme_bw() +
-  facet_wrap(~Fleet_Name )
-dev.off()
-
-png("FByFleet2.png",height=12,width=10, units="in",res=300)
 ggplot()+
   geom_line(aes(x=Yr,y=F,color=Fleet_Name),data=subset(FbyFleet,Yr>=1948),stat="identity") +
   scale_color_manual(values = c(Fill[c(1,2,4,5)],"black"), name="")+
@@ -307,8 +149,8 @@ ggplot()+
   theme_bw(base_size = 22) +
   facet_wrap(~Fleet_Name,scales="free_y",ncol=2,labeller = labeller(Fleet_Name=CatchLabels)  ) +
   theme(legend.position="none", strip.background = element_blank())
-dev.off()
 
+ggsave(last_plot(),file=file.path(model.dir,"08_FByFleet2.png"),height=12,width=10,units="in",dpi=300)
 
 
 

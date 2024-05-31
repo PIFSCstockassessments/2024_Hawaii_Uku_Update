@@ -20,7 +20,7 @@
 #' @param For example, ScaleFactor = c(1000,1000,1000) set biomass units to be 1000 kg, and recruits and numbers to be 1000 fish
 #' @param UserSpecified vector of length 7 indicating if the data will be user specified (0), read from a file (1), or set the same as the Jan-1 data (-1) when applicable for: [1] January-1 WAA, [2] SSB WAA, [3] Mid-Year WAA, [4] Catch WAA, [5] Natural Mortality, [6] Maturity and [7] Fishery Selectivity 
 #' @param TimeVary  vector of length 7 indicating if the data will be not time varying (0) or time-varying (1) for: [1] January-1 WAA, [2] SSB WAA, [3] Mid-Year WAA, [4] Catch WAA, [5] Natural Mortality, [6] Maturity and [7] Fishery Selectivity (Note this code does not support time-varying data)
-#' @param FemaleFrac Fraction of females in the population at maturity
+#' @param Biological Proportion of fishing and natural mortalities occuring before spawning occurs in a given year
 #' @param Recruitment List containing the Recruitment model option number, the vector of probabilities (in this case all ones because we don't support more than one recruitment model), and the additional info needed for the respective recruitment model. See the descriptions in 013_BuildAGEPROinputfile.R for guidance on the recruitment input
 #' @param Harvest The input data for the harvest settings, it would be a list with two items: Harvest type (1 = catch/landings, 0 = Fishing mortality, 2 = Removals) for each projection year, and a matrix of the values with each column corresponding to a year and each row a fleet
 #' @param doRebuild TRUE or FALSE to do the rebuilding program
@@ -64,7 +64,7 @@ AGEPRO_INP<-function(output.dir = "",
                     ScaleFactor = c(1000,1000,1000),  #Output scaling factors for biomass, recruits and stock numbers
                     UserSpecified = c(0,-1,0,0,0,0,0),
                     TimeVary = c(0,0,0,0,0,0,0),
-                    FemaleFrac=0.5,
+                    Biological=0,
                     Recruitment=Recruitment,
                     Harvest=Harvest,
                     doRebuild=FALSE,
@@ -183,8 +183,8 @@ AGEPRO_INP<-function(output.dir = "",
   
   lines$Bio<-"[BIOLOGICAL]"
   lines$Bio2<-paste(c(0))
-  lines$Bio3<-paste(c(FemaleFrac))
-  lines$Bio4<-paste(c(1 - FemaleFrac))
+  lines$Bio3<-paste(c(Biological))
+  lines$Bio4<-paste(c(Biological))
   
   lines$Mat<-"[MATURITY]"
   lines$Mat2<-paste(c(UserSpecified[6], TimeVary[6]), collapse = "  ")

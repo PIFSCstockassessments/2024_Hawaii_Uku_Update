@@ -10,7 +10,7 @@ root_dir <- here(..=2)
 ## ===========Manual Inputs===================
      n_boot        <- 100
      seed          <- 123
-     basemodel_dir <- file.path(root_dir,"01_SS final","01_base")
+     basemodel_dir <- file.path(root_dir,"01_SS final","01_Base")
 ##============================================
   
   # Key directories

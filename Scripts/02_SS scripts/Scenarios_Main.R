@@ -5,26 +5,13 @@ library(ggsci);library(data.table);library(stringr); library(this.path)
 root_dir <- here(..=2)
 
 ##SensitivityRuns
-
-## update as needed. Are nicer than the default SS output
-#----------------
-#base.dir<-c("C:\\Users\\michelle.sculley\\Documents\\Uku\\Assessment\\01_SS final")
-
 base.dir <- file.path(root_dir,"01_SS final")
 
-source(file.path(root_dir,"Scripts","Processing","Scenarios_KobePlot.R"))
+source(file.path(root_dir,"Scripts","02_SS scripts","Scenarios_KobePlot.R"))
 
-
-dir <- paste0(base.dir,"\\01_base")
-base_case <- SS_output(dir,ncols = 500,covar=TRUE)
-
-dir <- file.path(base.dir,"05_CleanedUp")
-model_1 <- SS_output(dir,ncols = 500,covar=TRUE)
-
-dir <- file.path(base.dir,"07_Cleanedup_InitEquilOn")
-model_2 <- SS_output(dir,ncols = 500,covar=TRUE)
-
-
+# Select models you want to compare
+base_case <- SS_output(file.path(base.dir,"01_Base"),ncols = 500,covar=TRUE )
+model_1   <- SS_output(file.path(base.dir,"99_Base_2019"),ncols = 500,covar=TRUE)
 
 plotsensitivity<-function(Summary, ModelLabels, NModels, PlotDir ){
   
@@ -172,9 +159,9 @@ d
 }
 
 
-Comp1       <- SSsummarize(list(base_case,model_1,model_2))
-ModelLabels <- c("Base","Clean","Clean+InitEquilOn")
-Directory   <- file.path(base.dir,"Comparisons","LikelihoodSectionTest")
+Comp1       <- SSsummarize(list(base_case,model_1))
+ModelLabels <- c("Base","2019 model")
+Directory   <- file.path(base.dir,"Comparisons","Y2019vs2024")
 dir.create(Directory)
 NModels     <- length(ModelLabels)
 plotsensitivity(Comp1,ModelLabels,NModels,Directory)
@@ -284,7 +271,7 @@ for(i in 1:length(Model.folders)){
   aModel                    <- SS_output(Model.folders[i],ncols = 500,covar=FALSE)
   rnames                    <- aModel$derived_quants$Label
   index_SSB_MSY             <- which(rnames==paste("SSB_MSY",sep=""))
-  index_Fstd_MSY            <- which(rnames==paste("Fstd_MSY",sep=""))
+  index_Fstd_MSY            <- which(rnames==paste("annF_MSY",sep=""))
   index_SSB_TermYr          <- which(rnames==paste("SSB_",max_yr,sep=""))
   index_Fstd_TermYr         <- which(rnames==paste("F_",max_yr,sep=""))
   index_MSY                 <- which(rnames==paste("Dead_Catch_MSY",sep=""))

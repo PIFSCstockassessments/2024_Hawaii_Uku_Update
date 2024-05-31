@@ -3,10 +3,10 @@ library(ggsci);library(data.table);library(stringr); library(this.path)
 
 root_dir <- here(..=2)
 
-source(file.path(root_dir,"/Scripts/Processing/Scenarios_KobePlot.R"))
+source(file.path(root_dir,"Scripts","02_SS scripts","Scenarios_KobePlot.R"))
 
-model_1 <- SS_output(file.path(root_dir,"01_SS final","04_New_MRIP_LW"),covar=TRUE)
-model_2 <- SS_output(file.path(root_dir,"01_SS final","05_Alt_MRIP_JH"),covar=TRUE)
+model_1 <- SS_output(file.path(root_dir,"01_SS final","01_Base"),covar=TRUE)
+model_2 <- SS_output(file.path(root_dir,"01_SS final","09_CellCorrected"),covar=TRUE)
 
 plotsensitivity<-function(Summary, ModelLabels, NModels, PlotDir ){
   
@@ -155,8 +155,8 @@ plotsensitivity<-function(Summary, ModelLabels, NModels, PlotDir ){
 
 
 Comp_sens   <-SSsummarize(list(model_1,model_2))
-ModelLabels <-c("Base","New MRIP")
-Directory   <-file.path(root_dir,"01_SS final","Comparisons","01_New_MRIP")
+ModelLabels <-c("Base","Cell Corrected")
+Directory   <-file.path(root_dir,"01_SS final","Comparisons","01_New_MRIP_CellCorrected")
 
 dir.create(Directory)
 NModels <- length(ModelLabels)

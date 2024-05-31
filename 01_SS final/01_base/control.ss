@@ -70,7 +70,7 @@
 0 # 0/1 to use steepness in initial equ recruitment calculation
 0 #  future feature:  0/1 to make realized sigmaR a function of SR curvature
 #_    LO   HI    INIT   PRIOR   PR_SD    PR_type   PHASE env-var use_dev   dev_mnyr   dev_mxyr  dev_PH   Block Blk_Fxn #  parm_name
-    3   6       4.314   4.314   99    0    1    0    0    0    0    0    0    0 # SR_LN(R0)
+    4   5         4.5   4.5   99    0    1    0    0    0    0    0    0    0 # SR_LN(R0)
   0.2    1       0.81    0.81   99    0   -4    0    0    0    0    0    0    0 # SR_BH_steep
     0    2       0.39    0.39   99    0   -3    0    0    0    0    0    0    0 # SR_sigmaR
    -5    5          0       0   99    0   -1    0    0    0    0    0    0    0 # SR_regime
@@ -84,11 +84,11 @@
 1 #_recdev_early_phase
 0 #_forecast_recruitment phase (incl. late recr) (0 value resets to maxphase+1)
 1 #_lambda for Fcast_recr_like occurring before endyr+1
-1933.3   #_last_early_yr_nobias_adj_in_MPD 
+1932.6   #_last_early_yr_nobias_adj_in_MPD 
 1982.0   #_first_yr_fullbias_adj_in_MPD 
-1987.0   #_last_yr_fullbias_adj_in_MPD 
-2014.6   #_first_recent_yr_nobias_adj_in_MPD 
-0.5273  #_max_bias_adj_in_MPD (1.0 to mimic pre-2009 models) 
+1987.5   #_last_yr_fullbias_adj_in_MPD 
+2012.3   #_first_recent_yr_nobias_adj_in_MPD 
+0.5241  #_max_bias_adj_in_MPD (1.0 to mimic pre-2009 models) 
 0   #_period of cycles in recruitment (N parms read below)
 -10 #min rec_dev
 10  #max rec_dev

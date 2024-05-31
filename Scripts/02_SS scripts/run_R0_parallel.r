@@ -25,7 +25,7 @@ parfile <- 'ss.par'
 ssdir.orig <- 'orig'
 
 numcpus <- 12
-runss.str <- 'ss.exe -nohess -nox' # Uncomment for Windows
+runss.str <- 'ss_opt_win.exe -nohess -nox' # Uncomment for Windows
 origwd <- getwd()
 
 parm.vec <- seq(parm.min, parm.max, parm.step)
@@ -62,6 +62,6 @@ foreach(ii=1:numdir) %dopar% {
 stopCluster(cl) # Uncomment for Windows
 setwd(origwd) 
 #source('C:\\Users\\Marc.Nadon\\Documents\\Work docs\\01_Projects\\002_Uku assessment\\0_R_Uku\\Scripts\\Processing\\plot_r0_profile.r')
-source(file.path(root_dir,"Scripts","Processing","plot_r0_profile.r"))
+source(file.path(root_dir,"Scripts","02_SS scripts","plot_r0_profile.r"))
 
 setwd(basewd)
