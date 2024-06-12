@@ -16,15 +16,15 @@ file.copy(file.path(root_dir,"Data","AGEPRO40.exe"),file.path(model_dir))
 Input <- read.delim(file.path(model_dir,paste0(modelname,".inp")), fill=FALSE, stringsAsFactors = FALSE, header=FALSE)
 
 ##initial harvest scenario (based on 2014-2023 average catch)
-DSH    <- 0.24
+DSH    <- 0.25
 ISH    <- 0.05
 Troll  <- 0.04
 Others <- 0.06
 Rec    <- 0.60
 
 CatchBeforeProjection <- 111 # This is the 2021-2023 3-year average catch that is assume to happen in 2024 (since projections start in 2025)
-StartMaxCatch         <- 255 # This is the first catch scenario that will be implemented, from which we will decrease the catches iteratively
-StopMinCatch          <- 125 # This is the last catch scenario, the smallest one
+StartMaxCatch         <- 265 # This is the first catch scenario that will be implemented, from which we will decrease the catches iteratively
+StopMinCatch          <- 130 # This is the last catch scenario, the smallest one
 Decrease              <- 5   # Amount of catch reduction between each successive scenario
 NProj                 <- floor( (StartMaxCatch-StopMinCatch)/Decrease )
 
@@ -167,16 +167,14 @@ ggplot(data=PlotData[Year>2024])+
 ggsave(last_plot(),file=file.path(model_dir,"04_SSBProbabilityProjections.png"),height=4,width=4,units="in",dpi=200)
 
 ##===================================Tables=================================================
-minProb <- 0
+minProb <- 0.1
 maxProb <- 0.5
 
 # Catch risk table 
-G <- PlotData %>% filter(FProb>=0.1&FProb<=0.6)
+G <- PlotData %>% filter(FProb>=minProb&FProb<=maxProb)
 
-  Preds.x <- expand.grid(FProb=seq(0.1,0.5,by=0.01),Year=as.factor(seq(min(G$Year),max(G$Year))))
+  Preds.x <- expand.grid(FProb=seq(minProb,maxProb,by=0.01),Year=as.factor(seq(min(G$Year),max(G$Year))))
   G$Year  <- factor(G$Year)
-  #model   <- gam(data=G,Catch~Year+s(FProb,by=Year),method="REML")
-  #Preds   <- predict.gam(model,newdata=Preds.x)
   model   <- glm(data=G,Catch~Year*poly(FProb,3))
   Preds   <- predict(model,newdata=Preds.x)
   Preds   <- cbind(Preds.x,Preds)
