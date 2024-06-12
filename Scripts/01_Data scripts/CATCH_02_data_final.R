@@ -18,7 +18,8 @@ aggr          <- dcast(aggr, FYEAR+GEAR_B~AREA_D,value.var="LBS",fill=0)
 aggr$PROP_MHI <- aggr$MHI/(aggr$MHI+aggr$NWHI)
 aggr$Inv_MHI  <- aggr$Invalid*aggr$PROP_MHI
 
-D         <- C[SPECIES==Species.code&AREA_D=="MHI",list(LBS=sum(LBS)),by=list(FYEAR,GEAR_B)] 
+D         <- C %>% filter(SPECIES==Species.code) %>% filter(AREA_D=="MHI")
+D         <- D[,list(LBS=sum(LBS)),by=list(FYEAR,GEAR_B)] 
 D         <- D[order(FYEAR,GEAR_B)]
 D$LBS_COM <- D$LBS+aggr$Inv_MHI
 D$LBS     <- NULL
