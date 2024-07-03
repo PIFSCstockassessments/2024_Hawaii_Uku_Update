@@ -21,11 +21,13 @@
 
 require(data.table); require(parallel); require(tidyverse); require(foreign); require(plyr); require(this.path)
 
+root_dir <-  here(..=2)
+
 A <- readRDS(file.path(root_dir,"Outputs/CATCH_processed.rds"))
 
 # Select the gear to be used for CPUE analyses
 
-Gear.name <- c("DEEP_HANDLINE","INSHORE_HANDLINE","TROLLING")[3]
+Gear.name <- c("DEEP_HANDLINE","INSHORE_HANDLINE","TROLLING")[1]
 add.wind  <- T           # Remove windspeed calculations to reduce processing time. This can take several hours depending on the selected gear.
 
 # Sum LBS in the dataset so that species are only mentioned once per record

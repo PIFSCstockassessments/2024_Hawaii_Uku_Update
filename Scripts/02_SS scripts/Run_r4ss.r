@@ -6,7 +6,7 @@ library(r4ss); library(this.path)
 root_dir <- here(..=2 )
 
 replist <- SS_output(dir = "01_SS final/01_Base", verbose=TRUE, printstats=TRUE)
-replist <- SS_output(dir = file.path(root_dir,"01_SS final","09_CellCorrected"), verbose=TRUE, printstats=TRUE)
+replist <- SS_output(dir = file.path(root_dir,"01_SS final","08a_NotCellCorrected"), verbose=TRUE, printstats=TRUE)
 
 #SS_plots(replist, datplot=TRUE,pdf=TRUE,png=FALSE,  uncertainty=TRUE,pwidth=9, pheight=9, rows=2, cols=2, text=TRUE)
 SS_plots(replist,uncertainty=TRUE,png=TRUE)

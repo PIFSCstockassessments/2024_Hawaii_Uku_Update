@@ -6,7 +6,8 @@ root_dir <- here(..=2)
 source(file.path(root_dir,"Scripts","02_SS scripts","Scenarios_KobePlot.R"))
 
 model_1 <- SS_output(file.path(root_dir,"01_SS final","01_Base"),covar=TRUE)
-model_2 <- SS_output(file.path(root_dir,"01_SS final","09_CellCorrected"),covar=TRUE)
+model_2 <- SS_output(file.path(root_dir,"01_SS final","08a_NotCellCorrected"),covar=TRUE)
+model_3 <- SS_output(file.path(root_dir,"01_SS final","99_Base_2019"),covar=TRUE)
 
 plotsensitivity<-function(Summary, ModelLabels, NModels, PlotDir ){
   
@@ -154,9 +155,9 @@ plotsensitivity<-function(Summary, ModelLabels, NModels, PlotDir ){
 } ## End of plot sensitivity function
 
 
-Comp_sens   <-SSsummarize(list(model_1,model_2))
-ModelLabels <-c("Base","Cell Corrected")
-Directory   <-file.path(root_dir,"01_SS final","Comparisons","01_New_MRIP_CellCorrected")
+Comp_sens   <-SSsummarize(list(model_1,model_2,model_3))
+ModelLabels <-c("Base","HMRFS Not Corrected","2020 Benchmark")
+Directory   <-file.path(root_dir,"01_SS final","Comparisons","03_FullComparison")
 
 dir.create(Directory)
 NModels <- length(ModelLabels)
