@@ -68,7 +68,7 @@ poly_x<-c(x_min,x_min,MSST_x,MSST_x)
  SSBratio_05<-SSBratio[nyears]-1.96*SSBstd
  
  
-png(file=file.path(model_dir,"KobePlot.png"),height=10,width = 10, units="in",res=300) 
+png(file=file.path(model_dir,"09_KobePlot.png"),height=10,width = 10, units="in",res=300) 
  plot(c(x_min,x_max),c(y_min,y_max),type="n", ylab="", xlab="")
  mtext(side=1, expression(SSB/SSB[MSY]),line=2.5, cex=1)  
  mtext(side=2, expression(F/F[MSY]),line=2.5, cex=1)  
